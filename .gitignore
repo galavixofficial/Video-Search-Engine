@@ -17,3 +17,6 @@ dist/
 
 # Keep curated screenshots
 !docs/screenshots/
+
+# Local Netlify folder
+.netlify
