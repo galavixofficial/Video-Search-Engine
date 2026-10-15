@@ -1,0 +1,35 @@
+name: Release
+# Push a tag like v1.0.0 to build the Windows app and attach it to a GitHub release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install
+        run: uv sync --python 3.12
+      - name: Test
+        run: uv run pytest -q
+      - name: Build
+        run: uv run pyinstaller sceneseek.spec --noconfirm --distpath build_out/dist --workpath build_out/work
+      - name: Package
+        shell: pwsh
+        run: |
+          $name = "Sceneseek-${{ github.ref_name }}-windows-x64.zip"
+          Compress-Archive -Path build_out/dist/Sceneseek -DestinationPath $name
+          $hash = (Get-FileHash $name -Algorithm SHA256).Hash.ToLower()
+          "$hash  $name" | Out-File -Encoding ascii "$name.sha256"
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Sceneseek-*.zip
+            Sceneseek-*.zip.sha256
+          generate_release_notes: true

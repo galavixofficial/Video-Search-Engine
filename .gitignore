@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[oc]
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Local data, models and build output
+data/
+models/
+hf_cache/
+build_out/
+build/
+dist/
+*.log
+.env
+
+# Keep curated screenshots
+!docs/screenshots/

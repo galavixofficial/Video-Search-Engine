@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sceneseek</title>
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-9 9"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#search" aria-label="Sceneseek home"><img src="logo.svg" alt="" width="28" height="28"><span>Sceneseek</span></a>
+    <nav class="tabs" aria-label="Main">
+      <a href="#search" data-tab="search" class="tab"><svg class="ic"><use href="#i-search"/></svg><span>Search</span></a>
+      <a href="#library" data-tab="library" class="tab"><svg class="ic"><use href="#i-film"/></svg><span>Library</span><b class="count" id="libCount" hidden></b></a>
+      <a href="#settings" data-tab="settings" class="tab"><svg class="ic"><use href="#i-gear"/></svg><span>Settings</span></a>
+    </nav>
+    <div class="top-r">
+      <button class="pill" id="busyPill" hidden type="button"><span class="spin"></span><span id="busyText">Indexing</span></button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme"><svg class="ic"><use href="#i-sun"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main id="app">
+  <!-- First run: download the model -->
+  <section id="setup" class="view" hidden>
+    <div class="setup-card">
+      <img src="logo.svg" alt="" width="64" height="64">
+      <h1>Welcome to Sceneseek</h1>
+      <p class="lead">Find any moment in your videos by describing it. Everything stays on this computer.</p>
+      <p>To get started, Sceneseek needs to download its search model once. After that it works fully offline.</p>
+      <div class="choices" role="radiogroup" aria-label="Model quality">
+        <label class="choice"><input type="radio" name="q" value="fast" checked><span><b>Fast</b><small>About 150 MB. Great for most libraries.</small></span></label>
+        <label class="choice"><input type="radio" name="q" value="best"><span><b>Best</b><small>About 600 MB. Slightly more accurate, slower to index.</small></span></label>
+      </div>
+      <button class="btn primary big" id="dlBtn" type="button"><svg class="ic"><use href="#i-download"/></svg>Download and start</button>
+      <div class="bar" id="dlBar" hidden><i id="dlFill"></i></div>
+      <p class="muted small" id="dlText"></p>
+    </div>
+  </section>
+
+  <!-- Search -->
+  <section id="search" class="view" hidden>
+    <div class="hero" id="hero">
+      <h1>Search your videos<br><em>by describing the moment.</em></h1>
+      <p class="lead">Type what you remember. Sceneseek jumps straight to the scene.</p>
+    </div>
+    <form class="searchbox" id="searchForm" autocomplete="off" role="search">
+      <svg class="ic lead-ic"><use href="#i-search"/></svg>
+      <input id="q" type="search" placeholder="a dog running on a beach, two people laughing, a red car at night..." aria-label="Describe the moment you are looking for" spellcheck="false">
+      <button type="button" class="icon-btn" id="imgBtn" title="Search by image" aria-label="Search by image"><svg class="ic"><use href="#i-image"/></svg></button>
+      <button class="btn primary" type="submit">Search</button>
+      <input type="file" id="imgInput" accept="image/*" hidden>
+      <div class="history" id="history" hidden></div>
+    </form>
+    <div class="chips" id="examples" aria-label="Examples"></div>
+    <div class="filters" id="filters" hidden>
+      <label class="select-wrap"><span>Look in</span>
+        <select id="scope"><option value="">All videos</option></select>
+      </label>
+      <label class="select-wrap"><span>Minimum match</span>
+        <select id="minMatch"><option value="0">Show everything</option><option value="30">Fair or better</option><option value="50">Good or better</option><option value="70">Strong only</option></select>
+      </label>
+      <span class="spacer"></span>
+      <button class="btn ghost small" id="exportBtn" type="button" hidden><svg class="ic"><use href="#i-download"/></svg>Export CSV</button>
+    </div>
+    <div id="results" aria-live="polite"></div>
+  </section>
+
+  <!-- Library -->
+  <section id="library" class="view" hidden>
+    <div class="page-head">
+      <div><h1>Library</h1><p class="muted" id="libSummary"></p></div>
+      <div class="actions">
+        <button class="btn primary" id="addFolder" type="button"><svg class="ic"><use href="#i-folder"/></svg>Add a folder</button>
+        <button class="btn" id="addFiles" type="button"><svg class="ic"><use href="#i-plus"/></svg>Add videos</button>
+        <button class="btn ghost" id="rescan" type="button" title="Look for new videos in your folders"><svg class="ic"><use href="#i-refresh"/></svg>Rescan</button>
+      </div>
+    </div>
+    <div class="drop" id="drop"><svg class="ic big-ic"><use href="#i-film"/></svg><div><b>Drop videos here</b><small id="dropHint">or use the buttons above</small></div></div>
+    <input type="file" id="fileInput" accept="video/*" multiple hidden>
+    <div id="folderChips" class="chips folder-chips"></div>
+    <div class="list-tools" id="libTools" hidden>
+      <input type="search" id="libFilter" placeholder="Filter by name" aria-label="Filter videos by name">
+      <select id="libSort" aria-label="Sort"><option value="added">Newest first</option><option value="name">Name</option><option value="duration">Longest first</option></select>
+    </div>
+    <div id="videoGrid" class="vgrid"></div>
+    <div class="empty" id="libEmpty" hidden>
+      <svg class="ic big-ic"><use href="#i-film"/></svg>
+      <h2>Your library is empty</h2>
+      <p class="muted">Add a folder of videos and Sceneseek will index them in the background. You can search as soon as the first one finishes.</p>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section id="settings" class="view" hidden>
+    <div class="page-head"><div><h1>Settings</h1><p class="muted">Sensible defaults are already chosen. Change these only if you need to.</p></div></div>
+    <div class="panel-list">
+      <div class="panel">
+        <div class="panel-h"><h2>Detail</h2><output id="oInterval"></output></div>
+        <p class="muted">How often a frame is looked at. Smaller steps find shorter moments but take longer to index.</p>
+        <input type="range" id="sInterval" min="0.5" max="5" step="0.5" aria-label="Seconds between sampled frames">
+        <div class="range-l"><span>More detail</span><span>Faster</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Skip repeated scenes</h2><output id="oDedupe"></output></div>
+        <p class="muted">Frames that look almost the same as the last one are skipped. This makes indexing faster and results less repetitive.</p>
+        <input type="range" id="sDedupe" min="0" max="1" step="0.1" aria-label="How aggressively to skip repeated frames">
+        <div class="range-l"><span>Keep everything</span><span>Skip more</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Indexing speed</h2></div>
+        <p class="muted">Balanced keeps your computer responsive while videos are indexed. Maximum uses every processor core.</p>
+        <div class="seg" role="radiogroup" aria-label="Indexing speed" id="sSpeed">
+          <button type="button" data-v="balanced">Balanced</button><button type="button" data-v="max">Maximum</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Search model</h2></div>
+        <p class="muted" id="modelHelp"></p>
+        <div class="seg" role="radiogroup" aria-label="Model quality" id="sQuality">
+          <button type="button" data-v="fast">Fast (150 MB)</button><button type="button" data-v="best">Best (600 MB)</button>
+        </div>
+        <div class="bar" id="mdlBar" hidden><i id="mdlFill"></i></div>
+        <p class="muted small" id="mdlText"></p>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Your data</h2></div>
+        <p class="muted">The index, thumbnails and settings are stored here. Your videos are never copied or changed.</p>
+        <code class="path" id="dataDir"></code>
+        <div class="actions" style="margin-top:14px"><button class="btn danger" id="clearAll" type="button"><svg class="ic"><use href="#i-trash"/></svg>Clear the whole index</button></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>About</h2></div>
+        <p class="muted"><b id="aboutName">Sceneseek</b> <span id="aboutVersion"></span>. Free and open source (MIT). Searches run on your computer with an open-source CLIP model, so nothing you search or index is uploaded anywhere.</p>
+        <p class="muted small">Shortcuts: <kbd>/</kbd> focus search, <kbd>Esc</kbd> close the player, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> step through moments.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Indexing dock -->
+<div class="dock" id="dock" hidden role="status">
+  <div class="dock-main">
+    <div class="dock-t"><b id="dockName"></b><span class="muted small" id="dockInfo"></span></div>
+    <div class="bar thin"><i id="dockFill"></i></div>
+  </div>
+  <button class="icon-btn" id="dockPause" type="button" aria-label="Pause indexing"><svg class="ic"><use href="#i-pause"/></svg></button>
+  <button class="icon-btn" id="dockCancel" type="button" aria-label="Cancel indexing"><svg class="ic"><use href="#i-x"/></svg></button>
+</div>
+
+<!-- Player -->
+<div class="modal" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="pName">
+  <div class="modal-in">
+    <button class="icon-btn modal-x" id="pClose" type="button" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
+    <div class="stage">
+      <video id="pVideo" controls playsinline></video>
+      <div class="stage-err" id="pErr" hidden><p><b>This format can't play inside the app.</b></p><p class="muted small">Open it in your usual video player and jump to the time shown.</p><button class="btn primary" id="pOpenErr" type="button">Open in video player</button></div>
+    </div>
+    <aside class="side">
+      <h2 id="pName"></h2>
+      <p class="muted small" id="pMeta"></p>
+      <div class="actions wrap">
+        <button class="btn small" id="pSimilar" type="button"><svg class="ic"><use href="#i-sparkle"/></svg>Find similar</button>
+        <button class="btn small" id="pReveal" type="button"><svg class="ic"><use href="#i-folder"/></svg>Show file</button>
+        <button class="btn small" id="pOpen" type="button"><svg class="ic"><use href="#i-external"/></svg>Open</button>
+        <button class="btn small" id="pCopy" type="button"><svg class="ic"><use href="#i-link"/></svg>Copy time</button>
+      </div>
+      <h3>Matching moments</h3>
+      <div class="moments" id="pMoments"></div>
+    </aside>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>

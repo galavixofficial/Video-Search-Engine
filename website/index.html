@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sceneseek: find any moment in your videos by describing it</title>
+<meta name="description" content="Sceneseek is a free, private desktop app that searches your own videos by what is in them. Type what you remember and jump to the exact second. Runs offline on Windows.">
+<meta name="theme-color" content="#0b0c10">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://galavixofficial.github.io/Video-Search-Engine/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sceneseek: find any moment in your videos by describing it">
+<meta property="og:description" content="Private, offline video search for your own footage. Free and open source.">
+<meta property="og:image" content="https://galavixofficial.github.io/Video-Search-Engine/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sceneseek","operatingSystem":"Windows 10, Windows 11","applicationCategory":"MultimediaApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Search your own videos by describing what is in them. Runs offline on your computer.","softwareVersion":"1.0.0","license":"https://opensource.org/licenses/MIT"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is Sceneseek really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is free and open source under the MIT licence, with no account, subscription or ads."}},
+{"@type":"Question","name":"Are my videos uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Indexing and searching run on your computer. The only download is the search model, once, the first time you start the app."}},
+{"@type":"Question","name":"What video formats work?","acceptedAnswer":{"@type":"Answer","text":"MP4, MOV, MKV, AVI, WebM, WMV and more can be indexed and searched. The built-in player handles the formats your system can play; others open in your usual video player."}},
+{"@type":"Question","name":"How long does indexing take?","acceptedAnswer":{"@type":"Answer","text":"On our test PC a 10 minute video took about a minute and a half. A one hour video takes roughly ten minutes. It runs in the background and you can search finished videos meanwhile."}}
+]}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top"><img src="assets/logo.svg" alt="" width="30" height="30"><span>Sceneseek</span></a>
+    <nav aria-label="Main">
+      <a href="#features">Features</a><a href="#how">How it works</a><a href="#faq">FAQ</a>
+      <a class="btn small" href="#download">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="wrap">
+      <p class="eyebrow">Free · Private · Works offline</p>
+      <h1>Find any moment in your videos<br><em>by describing it.</em></h1>
+      <p class="lead">You remember <i>what</i> happened, not which file or when. Type it, and Sceneseek takes you to the exact second. Everything stays on your computer.</p>
+      <div class="cta">
+        <a class="btn primary big" href="#download"><svg viewBox="0 0 24 24" class="ic"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download for Windows</a>
+        <a class="btn ghost big" href="https://github.com/galavixofficial/Video-Search-Engine" rel="noopener">View on GitHub</a>
+      </div>
+      <p class="note">Windows 10 and 11 · about 100 MB · free and open source</p>
+      <figure class="shot hero-shot">
+        <img src="assets/results.jpg" width="1360" height="860" alt="Sceneseek showing search results for “a dragon”, with thumbnails and timestamps from several videos">
+      </figure>
+    </div>
+  </section>
+
+  <section class="strip" aria-label="Highlights">
+    <div class="wrap strip-in">
+      <div><b>100% local</b><span>Nothing is uploaded</span></div>
+      <div><b>No account</b><span>Install and go</span></div>
+      <div><b>Exact timestamps</b><span>Plays from the match</span></div>
+      <div><b>Open source</b><span>MIT licence</span></div>
+    </div>
+  </section>
+
+  <section class="sec" id="how">
+    <div class="wrap">
+      <p class="eyebrow">How it works</p>
+      <h2>From a vague memory to the right second in three steps.</h2>
+      <ol class="steps">
+        <li><span class="n">1</span><h3>Add a folder</h3><p>Point Sceneseek at the folders where your videos live. It indexes them quietly in the background and keeps your files exactly where they are.</p></li>
+        <li><span class="n">2</span><h3>Describe the moment</h3><p>Type “a red car at night” or “two people laughing”. Or drop in a picture and find footage that looks like it.</p></li>
+        <li><span class="n">3</span><h3>Jump straight there</h3><p>Click a result and the video plays from just before the match. No scrubbing through hours of footage.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec alt" id="features">
+    <div class="wrap">
+      <p class="eyebrow">Features</p>
+      <h2>Built for people who have more footage than time.</h2>
+      <div class="grid">
+        <article><h3>Search by description</h3><p>Plain English works. Scenes, objects, colours, places and actions are all fair game.</p></article>
+        <article><h3>Search by image</h3><p>Paste a screenshot or choose a photo to find similar shots, or click <b>Find similar</b> on any result.</p></article>
+        <article><h3>Several moments per video</h3><p>Each video shows its best distinct moments, so a long recording does not bury the answer.</p></article>
+        <article><h3>Private by design</h3><p>The AI model runs on your computer. Your videos are never copied, uploaded or changed.</p></article>
+        <article><h3>Smart indexing</h3><p>Skips repeated scenes, runs in the background, can be paused, and only re-reads files that changed.</p></article>
+        <article><h3>Watched folders</h3><p>Add a folder once. New videos are found automatically the next time you open the app.</p></article>
+        <article><h3>A real library</h3><p>See what is indexed, re-index or remove videos, and export your results to a spreadsheet.</p></article>
+        <article><h3>Tidy and quick</h3><p>Light and dark themes, keyboard shortcuts and a clean layout that stays out of your way.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="tour">
+    <div class="wrap">
+      <p class="eyebrow">A closer look</p>
+      <h2>Simple on the surface.</h2>
+      <div class="tour">
+        <figure class="shot"><img src="assets/player.jpg" loading="lazy" width="1360" height="860" alt="The player opened at a matching moment, with other matching moments listed beside it"><figcaption>Open a result and pick up exactly where it happens, with the other matches one click away.</figcaption></figure>
+        <figure class="shot"><img src="assets/library.jpg" loading="lazy" width="1360" height="860" alt="The library view showing indexed videos with thumbnails and status"><figcaption>Your library at a glance: what is indexed, what is waiting, and what needs attention.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec alt" id="who">
+    <div class="wrap">
+      <p class="eyebrow">Who it is for</p>
+      <h2>Anyone with a folder of videos they cannot search.</h2>
+      <div class="grid three">
+        <article><h3>Editors and creators</h3><p>Pull the right B-roll or the take you half remember without logging every clip by hand.</p></article>
+        <article><h3>Researchers and journalists</h3><p>Go through interviews, field footage and recordings. Your material stays on your machine.</p></article>
+        <article><h3>Teachers and students</h3><p>Find the part of a recorded lecture or demo where something was shown.</p></article>
+        <article><h3>Families</h3><p>Find “the birthday where grandpa blew out the candles” across years of phone videos.</p></article>
+        <article><h3>Small businesses</h3><p>Search training videos, product demos and event footage without a cloud subscription.</p></article>
+        <article><h3>Developers</h3><p>It is open source and the code is small and readable. Fork it and make it yours.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="download">
+    <div class="wrap dl">
+      <div>
+        <p class="eyebrow">Download</p>
+        <h2>Get Sceneseek for Windows.</h2>
+        <p class="lead">Unzip, run <code>Sceneseek.exe</code>, and add a folder. The first launch downloads the search model once (about 150 MB). After that it works fully offline.</p>
+        <div class="cta">
+          <a class="btn primary big" href="https://github.com/galavixofficial/Video-Search-Engine/releases/latest" rel="noopener"><svg viewBox="0 0 24 24" class="ic"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download v1.0.0</a>
+        </div>
+        <p class="note">Windows 10 or 11, 64-bit · 8 GB RAM recommended · no graphics card needed</p>
+        <details class="box"><summary>Windows shows a warning when I open it</summary>
+          <p>Sceneseek is new and not code-signed yet, so Windows SmartScreen may say it does not recognise the app. Choose <b>More info</b>, then <b>Run anyway</b>. You can check the download against the published checksum, and the full source code is on GitHub.</p></details>
+        <details class="box"><summary>Verify the download</summary><p>The SHA-256 checksum is published next to the file on the <a href="https://github.com/galavixofficial/Video-Search-Engine/releases/latest" rel="noopener">release page</a>. In PowerShell, <code>Get-FileHash Sceneseek-*.zip</code> prints the one for your copy.</p></details>
+        <details class="box"><summary>macOS, Linux, or build it yourself</summary>
+          <p>The app is plain Python. With Python 3.10 or newer, run <code>pip install -r requirements.txt</code> and <code>python main.py</code>. Full steps are in the <a href="https://github.com/galavixofficial/Video-Search-Engine#run-from-source" rel="noopener">README</a>.</p></details>
+      </div>
+      <figure class="shot"><img src="assets/settings.jpg" loading="lazy" width="1360" height="1000" alt="The settings page with detail, repeated-scene and speed controls"></figure>
+    </div>
+  </section>
+
+  <section class="sec alt" id="faq">
+    <div class="wrap narrow">
+      <p class="eyebrow">Questions</p>
+      <h2>Good to know before you start.</h2>
+      <details class="faq" open><summary>Is it really free?</summary><p>Yes. Sceneseek is free and open source under the MIT licence. There is no account, subscription or ads.</p></details>
+      <details class="faq"><summary>Are my videos uploaded anywhere?</summary><p>No. Indexing and searching happen on your computer, and the app only answers requests from your own machine. The one download is the search model, once, on first launch.</p></details>
+      <details class="faq"><summary>What can it find, and what can't it?</summary><p>It matches what things <em>look like</em>: scenes, objects, colours, places and actions. It does not listen to speech, so it cannot search by what people say, and it is not good at reading small text on screen. Very short moments can be missed at the default setting; you can raise the detail in Settings.</p></details>
+      <details class="faq"><summary>How long does indexing take?</summary><p>It depends on your processor. On our test PC a 10 minute video took about a minute and a half, so an hour of footage takes around ten minutes. Indexing runs in the background and finished videos are searchable straight away. Each video is only processed once.</p></details>
+      <details class="faq"><summary>Which video formats work?</summary><p>MP4, MOV, MKV, AVI, WebM, WMV and others can be indexed and searched. The built-in player plays what your system supports; for anything else, the Open button hands the file to your usual player.</p></details>
+      <details class="faq"><summary>How much disk space does the index use?</summary><p>Very little: about 1 KB per indexed moment, so a thousand hours of footage stays well under a few GB including thumbnails. Your videos are not copied.</p></details>
+      <details class="faq"><summary>Can I use it for work?</summary><p>Yes, the MIT licence allows commercial use. The AI model is OpenAI's open CLIP model, also MIT licensed.</p></details>
+    </div>
+  </section>
+
+  <section class="sec final">
+    <div class="wrap">
+      <img src="assets/logo.svg" alt="" width="56" height="56">
+      <h2>Stop scrubbing. Start finding.</h2>
+      <div class="cta"><a class="btn primary big" href="#download">Download Sceneseek</a></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p><b>Sceneseek</b> is free software by <a href="https://github.com/galavixofficial" rel="noopener">Galavix</a>, released under the <a href="https://github.com/galavixofficial/Video-Search-Engine/blob/main/LICENSE" rel="noopener">MIT licence</a>.</p>
+    <p class="small">Screenshots use footage from the Blender Foundation open movies <i>Big Buck Bunny</i>, <i>Sintel</i> and <i>Elephants Dream</i> (<a href="https://creativecommons.org/licenses/by/3.0/" rel="noopener">CC BY 3.0</a>) and a clip from test-videos.co.uk. Sceneseek is not affiliated with OpenAI or the Blender Foundation.</p>
+  </div>
+</footer>
+</body>
+</html>
