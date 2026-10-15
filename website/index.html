@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sceneseek: find any moment in your videos by describing it</title>
 <meta name="description" content="Sceneseek is a free, private desktop app that searches your own videos by what is in them. Describe a moment and jump to the exact second. Runs offline on Windows.">
-<meta name="theme-color" content="#0e0c12">
+<meta name="theme-color" content="#060608">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://galavixofficial.github.io/Video-Search-Engine/">
 <meta property="og:type" content="website">
@@ -13,8 +13,10 @@
 <meta property="og:description" content="Private, offline video search for your own footage. Free and open source.">
 <meta property="og:image" content="https://galavixofficial.github.io/Video-Search-Engine/assets/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preload" href="assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/geist-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add("js")</script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sceneseek","operatingSystem":"Windows 10, Windows 11","applicationCategory":"MultimediaApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Search your own videos by describing what is in them. Runs offline on your computer.","softwareVersion":"1.0.0","license":"https://opensource.org/licenses/MIT"}
 </script>
@@ -22,8 +24,8 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"Is Sceneseek really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is free and open source under the MIT licence, with no account, subscription or ads."}},
 {"@type":"Question","name":"Are my videos uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Indexing and searching run on your computer. The only download is the search model, once, the first time you start the app."}},
-{"@type":"Question","name":"What video formats work?","acceptedAnswer":{"@type":"Answer","text":"MP4, MOV, MKV, AVI, WebM, WMV and more can be indexed and searched. The built-in player handles the formats your system can play; others open in your usual video player."}},
-{"@type":"Question","name":"How long does indexing take?","acceptedAnswer":{"@type":"Answer","text":"On our test PC a 10 minute video took about a minute and a half. A one hour video takes roughly ten minutes. It runs in the background and you can search finished videos meanwhile."}}
+{"@type":"Question","name":"What video formats work?","acceptedAnswer":{"@type":"Answer","text":"MP4, MOV, MKV, AVI, WebM, WMV and more can be indexed and searched. The built-in player handles the formats your system can play."}},
+{"@type":"Question","name":"Can it search what people say?","acceptedAnswer":{"@type":"Answer","text":"No. Sceneseek matches what things look like, not speech. It does not transcribe audio."}}
 ]}
 </script>
 </head>
@@ -31,10 +33,10 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav">
   <div class="wrap nav-in">
-    <a class="brand" href="#top"><img src="assets/logo.svg" alt="" width="38" height="38"><span>sceneseek</span></a>
+    <a class="brand" href="#top"><img src="assets/logo.svg" alt="" width="36" height="36"><span>scene<i>seek</i></span></a>
     <nav aria-label="Main">
-      <a href="#how">How it works</a><a href="#features">Features</a><a href="#tour">Screens</a><a href="#faq">FAQ</a>
-      <a class="btn pop small" href="#download">Download</a>
+      <a href="#scale">Matches</a><a href="#features">Features</a><a href="#method">How it works</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a>
+      <a class="btn solid small" href="#download">Download</a>
     </nav>
   </div>
 </header>
@@ -42,165 +44,208 @@
 <main id="main">
   <section class="hero" id="top">
     <div class="wrap">
-      <p class="kicker"><i class="recdot"></i> Free · private · works offline</p>
-      <h1 class="mega"><span>Describe a moment.</span><br><span>We'll find the</span> <mark>shot.</mark></h1>
-      <p class="lead">You remember <i>what</i> happened, not which file or when. Type it, and Sceneseek takes you to the exact second. Every match is colour-coded, every frame stays on your computer.</p>
+      <p class="kick"><i class="rec"></i> Free · private · works offline</p>
+      <h1><span>Say what you saw.</span><span class="spec">Skip straight to it.</span></h1>
+      <p class="lead">You remember <em>what</em> happened, not which file or when. Describe it, and Sceneseek takes you to the exact second. Every match is colour-coded. Every frame stays on your computer.</p>
       <div class="cta">
-        <a class="btn pop big" href="#download"><svg viewBox="0 0 24 24" class="ic"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download for Windows</a>
-        <a class="btn big" href="https://github.com/galavixofficial/Video-Search-Engine" rel="noopener">View on GitHub</a>
+        <a class="btn solid big" href="#download"><svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download for Windows</a>
+        <a class="btn big" href="https://github.com/galavixofficial/Video-Search-Engine" rel="noopener">View the source</a>
       </div>
-      <p class="note mono">Windows 10 and 11 · about 100 MB · free and open source</p>
-      <figure class="hero-shot">
-        <img src="assets/results.jpg" width="1440" height="900" alt="Sceneseek showing contact sheets for the search “a dragon”, with colour-coded match percentages on every frame">
-        <i class="chip c1">71% Good</i><i class="chip c2">5:16</i><i class="chip c3">100% local</i>
-      </figure>
+      <p class="note">Windows 10 and 11 · about 110 MB · free and open source · MIT</p>
+      <div class="stage rv">
+        <div class="win"><div class="win-bar"><i></i><i></i><i></i><span>SCENESEEK</span></div>
+          <img src="assets/results.jpg" width="1440" height="900" alt="Sceneseek results for the search “a dragon”: a large frame with a green 71 percent match and a table of the best moments"></div>
+        <span class="badge b1"><i></i>71% good match</span><span class="badge b2"><i></i>5:16 in the film</span><span class="badge b3"><i></i>100% on your computer</span>
+      </div>
     </div>
   </section>
 
-  <div class="ticker" aria-hidden="true"><div><span>Describe it ✦</span><span>find it ✦</span><span>play it ✦</span><span>keep it ✦</span><span>export it ✦</span><span>100% local ✦</span><span>nothing uploaded ✦</span><span>free &amp; open source ✦</span><span>Describe it ✦</span><span>find it ✦</span><span>play it ✦</span><span>keep it ✦</span><span>export it ✦</span><span>100% local ✦</span><span>nothing uploaded ✦</span><span>free &amp; open source ✦</span></div></div>
+  <div class="ticker" aria-hidden="true"><div><span>Describe it</span><span>find it</span><span>play it</span><span>keep it</span><span>export it</span><span>nothing uploaded</span><span>Describe it</span><span>find it</span><span>play it</span><span>keep it</span><span>export it</span><span>nothing uploaded</span></div></div>
 
-  <section class="sec" id="how">
+  <section class="sec" id="scale">
+    <div class="wrap scale">
+      <div class="rv">
+        <p class="eyebrow">Colour is information</p>
+        <h2>Every match wears its <span class="spec">number.</span></h2>
+        <p class="lead" style="margin-top:24px">Red is a long shot. Green is very likely. The colour runs along one scale from weak to strong, so you can read a page of results at a glance. Drag the dial to see how Sceneseek words it.</p>
+        <p class="muted" style="font-size:.92rem;margin-top:18px">The percentage compares a frame with your words against the rest of your footage. It is a guide, not a guarantee.</p>
+      </div>
+      <div class="dial rv" id="dial" style="--pc:hsl(120 94% 60%)">
+        <div class="num" id="dNum">72<sup>%</sup></div>
+        <div class="verdict" id="dVerdict">Good match</div>
+        <input type="range" id="dRange" min="20" max="98" value="72" aria-label="Match percentage">
+        <div class="ends"><span>Long shot</span><span>Maybe</span><span>Good</span><span>Strong</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec edge" id="features">
     <div class="wrap">
-      <p class="eyebrow">How it works</p>
-      <h2>From a vague memory to the right second in <mark>three steps.</mark></h2>
-      <ol class="steps">
-        <li><span class="n">1</span><h3>Add a folder</h3><p>Point Sceneseek at the folders where your videos live. It indexes them quietly in the background and your files stay exactly where they are.</p></li>
-        <li><span class="n">2</span><h3>Describe the moment</h3><p>Type “a red car at night” or “two people laughing”. Or drop in a picture and find footage that looks like it.</p></li>
-        <li><span class="n">3</span><h3>Jump straight there</h3><p>Click a frame and the video plays from just before the match. No scrubbing through hours of footage.</p></li>
-      </ol>
+      <div class="sec-head rv">
+        <p class="eyebrow">What it does</p>
+        <h2>Built for people who have more footage <span class="spec">than time.</span></h2>
+      </div>
+
+      <article class="show rv">
+        <div class="copy"><div class="no">01 / SEEK</div><h3>Type a scene. Get the second.</h3>
+          <p>Plain English works. Scenes, objects, colours, places and actions are all fair game, and results appear as you type. Or speak it, or drop in a picture.</p>
+          <ul><li><span><b>Power search.</b> <code>dog + snow</code> wants both. <code>beach -night</code> leaves night shots out.</span></li><li><span><b>Search by voice or image.</b> Press the mic, paste a screenshot, or hit Find similar on any frame.</span></li><li><span><b>Hover to preview.</b> Point at a frame and watch it silently before opening.</span></li></ul></div>
+        <div class="win"><div class="win-bar"><i></i><i></i><i></i><span>POWER SEARCH</span></div><img src="assets/power.jpg" loading="lazy" width="1440" height="900" alt="Results for “a flying creature -dragon”, with dragon scenes excluded"></div>
+      </article>
+
+      <article class="show flip rv">
+        <div class="copy"><div class="no">02 / WATCH</div><h3>The screening room.</h3>
+          <p>A curve shows how strongly every moment of the film matches, drawn above a strip of real frames. Flags mark each take. Click or drag to scrub, or step through takes with the keyboard.</p>
+          <ul><li><span><b>Search inside one video.</b> Perfect for a long recording.</span></li><li><span><b>Keep the shots you need</b> with one key, or save the full-resolution frame as a picture.</span></li></ul></div>
+        <div class="win"><div class="win-bar"><i></i><i></i><i></i><span>SCREENING ROOM</span></div><img src="assets/watch.jpg" loading="lazy" width="1440" height="900" alt="A video playing above a match curve and film strip, with a list of takes and their percentages"></div>
+      </article>
+
+      <article class="show rv">
+        <div class="copy"><div class="no">03 / TOPICS</div><h3>It sorts your footage for you.</h3>
+          <p>Without a single search, Sceneseek groups your videos into topics such as faces, animals, text on screen, swords and battles. Hover a topic and a frame follows your cursor.</p></div>
+        <div class="win"><div class="win-bar"><i></i><i></i><i></i><span>TOPICS</span></div><img src="assets/topics.jpg" loading="lazy" width="1440" height="900" alt="A typographic index of topics with a frame preview following the cursor"></div>
+      </article>
+
+      <article class="show flip rv">
+        <div class="copy"><div class="no">04 / REEL</div><h3>From search to timeline.</h3>
+          <p>Every moment you keep becomes a numbered cut with in and out timecodes and a note. Export a standard edit list for Premiere Pro, DaVinci Resolve or Final Cut, or take a CSV.</p>
+          <ul><li><span><b>CMX3600 EDL.</b> Each moment is a six second cut starting on a 01:00:00:00 timeline.</span></li></ul></div>
+        <div class="win"><div class="win-bar"><i></i><i></i><i></i><span>REEL</span></div><img src="assets/reel.jpg" loading="lazy" width="1440" height="900" alt="A cut list with a sequence ribbon, numbered cuts, in and out timecodes and notes"></div>
+      </article>
     </div>
   </section>
 
-  <section class="sec tint" id="features">
+  <section class="sec" id="method">
     <div class="wrap">
-      <p class="eyebrow">Features</p>
-      <h2>Built for people who have more footage <mark>than time.</mark></h2>
-      <div class="grid">
-        <article><span class="fi f1">⌕</span><h3>Describe it, find it</h3><p>Plain English works. Scenes, objects, colours, places and actions are all fair game, and results appear as you type.</p></article>
-        <article><span class="fi f2">%</span><h3>Colour-coded matches</h3><p>Every frame wears its match percentage, from red through amber to green, with a heatmap of where each video matches.</p></article>
-        <article><span class="fi f3">±</span><h3>Power search</h3><p><code>dog + snow</code> asks for both. <code>beach -night</code> leaves night shots out. Sharper results with no query language to learn.</p></article>
-        <article><span class="fi f4">▤</span><h3>A film-strip scrubber</h3><p>The watch page lays the whole video out as a strip of real frames with match flags on top. Click or drag to scrub.</p></article>
-        <article><span class="fi f5">★</span><h3>A reel with EDL export</h3><p>Keep the shots you need, add notes, and export a cut list for Premiere, DaVinci Resolve or Final Cut. Or take a CSV.</p></article>
-        <article><span class="fi f6">◎</span><h3>Topics, found for you</h3><p>Sceneseek sorts your footage into topics on its own: faces, beaches, cars, text on screen and more. Browse without typing.</p></article>
-        <article><span class="fi f1">◐</span><h3>Search by image</h3><p>Paste a screenshot or drop a photo to find similar shots, or press <b>Find similar</b> on any frame.</p></article>
-        <article><span class="fi f2">⌖</span><h3>Search inside a video</h3><p>In the screening room, search one long recording on its own and step through every take with the keyboard.</p></article>
-        <article><span class="fi f3">▣</span><h3>Grab the frame</h3><p>Save the full-resolution frame of any moment as a picture in one click, ready for a thumbnail or a slide.</p></article>
-        <article><span class="fi f4">▶</span><h3>Hover previews</h3><p>Point at a frame to watch it silently before you open it, so you find the right one faster.</p></article>
-        <article><span class="fi f5">⌘</span><h3>Keyboard first</h3><p>A command palette (<b>Ctrl K</b>) for everything, plus shortcuts to play, step through takes and keep a moment.</p></article>
-        <article><span class="fi f6">⛨</span><h3>Private by design</h3><p>The AI runs on your computer. Your videos are never copied, uploaded or changed, and the app only talks to your own machine.</p></article>
+      <div class="sec-head rv">
+        <p class="eyebrow">Methodology</p>
+        <h2>How it finds a moment <span class="spec">without listening.</span></h2>
+        <p class="lead">Sceneseek uses CLIP, an open model trained on images paired with their captions. It places a picture and a sentence in the same space, so a sentence and the frames that look like it end up close together. No tags, no transcripts.</p>
+      </div>
+
+      <div class="pipe-label">Once, when you add a video</div>
+      <div class="pipe rv">
+        <div><div class="k">01 · Sample</div><h3>Pick the frames</h3><p>One frame every second by default. Frames that look almost the same as the last one are skipped, so a static shot costs nothing.</p></div>
+        <div><div class="k">02 · Embed</div><h3>Read each frame</h3><p>The CLIP image encoder (ViT-B/16, run with ONNX Runtime on your CPU) turns each frame into 512 numbers describing what it shows.</p></div>
+        <div><div class="k">03 · Store</div><h3>Keep only numbers</h3><p>The vectors go into a small database on your disk, about 1 KB per moment. Your video is never copied or changed.</p></div>
+        <div><div class="k">04 · Wait</div><h3>That is all</h3><p>Indexing runs in the background and you can search finished videos meanwhile. It is paid once per video.</p></div>
+      </div>
+
+      <div class="pipe-label">Every time you search</div>
+      <div class="pipe rv">
+        <div><div class="k">01 · Parse</div><h3>Understand the query</h3><p>“dog + snow” becomes two requests that must both match. “-night” becomes something to steer away from.</p></div>
+        <div><div class="k">02 · Embed</div><h3>Read your words</h3><p>The CLIP text encoder turns your sentence into the same kind of 512 numbers. Voice input becomes text first.</p></div>
+        <div><div class="k">03 · Compare</div><h3>Rank by similarity</h3><p>Your words are compared with every stored frame in memory. Even tens of hours of footage answer in milliseconds.</p></div>
+        <div><div class="k">04 · Show</div><h3>Colour the result</h3><p>Raw similarity is mapped onto a 0 to 100 scale, grouped by video, and drawn as colour-coded frames and a match curve.</p></div>
+      </div>
+
+      <div class="facts rv">
+        <div class="fact"><b>~1 KB</b><span>of index per indexed moment. An hour of footage stays far below a gigabyte, thumbnails included.</span></div>
+        <div class="fact"><b>0 bytes</b><span>of your footage leave your computer. The server listens on 127.0.0.1 only and checks every request.</span></div>
+        <div class="fact"><b>2 models</b><span>to choose from. Fast (int8, about 150 MB) or Best (full precision, about 600 MB), downloaded once.</span></div>
+      </div>
+
+      <div class="good-bad rv">
+        <div class="gb yes"><h3>It is good at</h3><ul><li>Scenes, objects, colours, places and actions</li><li>Text on screen, faces in close-up, animals, vehicles</li><li>Finding “something like this” from a picture</li></ul></div>
+        <div class="gb no"><h3>It cannot</h3><ul><li>Hear speech. It does not transcribe audio.</li><li>Recognise a specific person by name</li><li>Promise a percentage means a correct answer. It is a ranking, not a probability.</li></ul></div>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="tour">
+  <section class="sec edge" id="privacy">
+    <div class="wrap priv">
+      <div class="rv"><p class="eyebrow">Privacy</p><div class="big">Your footage never <span class="spec">leaves.</span></div>
+        <p class="lead" style="margin-top:24px">There is no account, no cloud and no analytics. The AI runs where your videos already are.</p></div>
+      <ul class="rv">
+        <li><span>Videos uploaded</span><span>never</span></li>
+        <li><span>Account or sign-in</span><span>none</span></li>
+        <li><span>Usage tracking</span><span>none</span></li>
+        <li><span>Works with Wi-Fi off</span><span>yes, after setup</span></li>
+        <li><span>One-time model download</span><span>150 MB</span></li>
+        <li class="warn"><span>Voice search</span><span>uses your browser’s speech service</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec">
     <div class="wrap">
-      <p class="eyebrow">A closer look</p>
-      <h2>Bold on the surface. <mark>Serious</mark> underneath.</h2>
-      <div class="tabs" role="tablist" aria-label="Screens">
-        <button type="button" role="tab" aria-selected="true" data-shot="0">Watch</button>
-        <button type="button" role="tab" aria-selected="false" data-shot="1">Power search</button>
-        <button type="button" role="tab" aria-selected="false" data-shot="2">Topics</button>
-        <button type="button" role="tab" aria-selected="false" data-shot="3">Reel</button>
-        <button type="button" role="tab" aria-selected="false" data-shot="4">Footage</button>
-        <button type="button" role="tab" aria-selected="false" data-shot="5">Command palette</button>
+      <div class="sec-head rv"><p class="eyebrow">Everything else</p><h2>Details that <span class="spec">add up.</span></h2></div>
+      <div class="grid rv">
+        <article><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><h3>Instant results</h3><p>Results update as you type, and your last searches are remembered.</p></article>
+        <article><svg class="ico" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><h3>Match heat strips</h3><p>Every video shows where along its length it matches, so you can jump straight to the best part.</p></article>
+        <article><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M9 5v14"/></svg><h3>Watched folders</h3><p>Add a folder once and new videos are picked up automatically. Drag and drop works anywhere.</p></article>
+        <article><svg class="ico" viewBox="0 0 24 24"><path d="M12 3v9M8 8l4 4 4-4M5 16v3h14v-3"/></svg><h3>Frame grab</h3><p>Save the full-resolution frame of any moment as a picture, ready for a thumbnail or a slide.</p></article>
+        <article><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg><h3>Command palette</h3><p>Ctrl K jumps to any video, topic, page or command. Every action has a shortcut.</p></article>
+        <article><svg class="ico" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg><h3>Light and dark</h3><p>A dark edit-bay theme and a paper theme for daylight. Both scale down to a narrow window.</p></article>
       </div>
-      <div class="gallery">
-        <figure class="shot on"><img src="assets/watch.jpg" loading="lazy" width="1440" height="900" alt="The screening room: a video playing with a film-strip scrubber, colour-coded match flags and a list of takes"><figcaption>The screening room. The film strip shows the whole video as real frames with match flags on top, and the takes on the right each carry a colour-coded percentage.</figcaption></figure>
-        <figure class="shot"><img src="assets/power.jpg" loading="lazy" width="1440" height="900" alt="Results for a flying creature without dragons"><figcaption>“a flying creature -dragon”: the flying squirrel rises to 93% once the dragons are left out.</figcaption></figure>
-        <figure class="shot"><img src="assets/topics.jpg" loading="lazy" width="1440" height="900" alt="Topics mosaic with automatic categories such as rabbits, dragons and close-ups"><figcaption>Topics are found automatically. Tap one to see every moment.</figcaption></figure>
-        <figure class="shot"><img src="assets/reel.jpg" loading="lazy" width="1440" height="900" alt="The cut list with in and out timecodes and notes"><figcaption>Your reel is a cut list with in and out points. Export it as an EDL and open it in your editor.</figcaption></figure>
-        <figure class="shot"><img src="assets/footage.jpg" loading="lazy" width="1440" height="900" alt="Footage library of indexed videos on film strips"><figcaption>Your footage: watched folders, progress, and anything that needs attention.</figcaption></figure>
-        <figure class="shot"><img src="assets/palette.jpg" loading="lazy" width="1440" height="900" alt="Command palette suggesting topics and videos"><figcaption>Ctrl K jumps to any video, topic, page or command.</figcaption></figure>
+      <div class="duo" style="margin-top:44px">
+        <div class="win rv"><div class="win-bar"><i></i><i></i><i></i><span>PAPER THEME</span></div><img src="assets/light.jpg" loading="lazy" width="1440" height="900" alt="Sceneseek in its light paper theme showing dragon results"></div>
+        <div class="phone rv"><img src="assets/mobile.jpg" loading="lazy" width="390" height="844" alt="Sceneseek on a narrow screen with a bottom tab bar"></div>
       </div>
     </div>
   </section>
 
-  <section class="sec tint duo">
-    <div class="wrap duo-in">
-      <figure class="shot light"><img src="assets/light.jpg" loading="lazy" width="1440" height="900" alt="Sceneseek in its light paper theme"></figure>
-      <div>
-        <p class="eyebrow">Day or night</p>
-        <h2>Two themes. <mark>One</mark> personality.</h2>
-        <p class="lead">Dark for the edit bay, paper for the daylight. Both are built for long sessions, and both work on a small window or a phone-sized layout.</p>
-        <figure class="shot phone"><img src="assets/mobile.jpg" loading="lazy" width="390" height="844" alt="Sceneseek on a narrow screen"></figure>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="who">
-    <div class="wrap">
-      <p class="eyebrow">Who it is for</p>
-      <h2>Anyone with a folder of videos they <mark>cannot search.</mark></h2>
-      <div class="grid three">
-        <article><h3>Editors and creators</h3><p>Pull the right B-roll or the take you half remember, then send the cut list straight to your timeline.</p></article>
-        <article><h3>Researchers and journalists</h3><p>Go through interviews, field footage and recordings. Your material stays on your machine.</p></article>
-        <article><h3>Teachers and students</h3><p>Find the part of a recorded lecture or demo where something was shown.</p></article>
-        <article><h3>Families</h3><p>Find “the birthday where grandpa blew out the candles” across years of phone videos.</p></article>
-        <article><h3>Small businesses</h3><p>Search training videos, product demos and event footage without a cloud subscription.</p></article>
-        <article><h3>Developers</h3><p>It is open source and the code is small and readable. Fork it and make it yours.</p></article>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec tint" id="download">
+  <section class="sec edge" id="download">
     <div class="wrap dl">
-      <div>
+      <div class="rv">
         <p class="eyebrow">Download</p>
-        <h2>Get Sceneseek for <mark>Windows.</mark></h2>
-        <p class="lead">Unzip, run <code>Sceneseek.exe</code>, and add a folder. The first launch downloads the search model once (about 150 MB). After that it works fully offline.</p>
-        <div class="cta">
-          <a class="btn pop big" href="https://github.com/galavixofficial/Video-Search-Engine/releases/latest" rel="noopener"><svg viewBox="0 0 24 24" class="ic"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download v1.0.0</a>
-        </div>
-        <p class="note mono">Windows 10 or 11, 64-bit · 8 GB RAM recommended · no graphics card needed</p>
-        <details class="box"><summary>Windows shows a warning when I open it</summary>
-          <p>Sceneseek is new and not code-signed yet, so Windows SmartScreen may say it does not recognise the app. Choose <b>More info</b>, then <b>Run anyway</b>. You can check the download against the published checksum, and the full source code is on GitHub.</p></details>
-        <details class="box"><summary>Verify the download</summary><p>The SHA-256 checksum is published next to the file on the <a href="https://github.com/galavixofficial/Video-Search-Engine/releases/latest" rel="noopener">release page</a>. In PowerShell, <code>Get-FileHash Sceneseek-*.zip</code> prints the one for your copy.</p></details>
-        <details class="box"><summary>macOS, Linux, or build it yourself</summary>
-          <p>The app is plain Python. With Python 3.10 or newer, run <code>pip install -r requirements.txt</code> and <code>python main.py</code>. Full steps are in the <a href="https://github.com/galavixofficial/Video-Search-Engine#run-from-source" rel="noopener">README</a>.</p></details>
+        <h2>Get Sceneseek for <span class="spec">Windows.</span></h2>
+        <p class="lead" style="margin-top:24px">Unzip, run <code>Sceneseek.exe</code>, add a folder. The first launch downloads the search model once. After that it works fully offline.</p>
+        <div class="cta"><a class="btn solid big" href="https://github.com/galavixofficial/Video-Search-Engine/releases/latest" rel="noopener"><svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download v1.0.0</a></div>
+        <div class="sys"><span><b>Windows 10 / 11</b>64-bit</span><span><b>8 GB RAM</b>recommended</span><span><b>No GPU</b>needed</span></div>
+        <details class="box"><summary>Windows shows a warning when I open it</summary><p>Sceneseek is new and not code-signed yet, so Windows SmartScreen may say it does not recognise the app. Choose <b>More info</b>, then <b>Run anyway</b>. You can check the download against the published checksum first.</p></details>
+        <details class="box"><summary>Verify the download</summary><p>The SHA-256 checksum is published next to the file on the <a href="https://github.com/galavixofficial/Video-Search-Engine/releases/latest" rel="noopener">release page</a>. In PowerShell, <code>Get-FileHash Sceneseek-1.0.0-windows.zip</code> should print the same value.</p></details>
+        <details class="box"><summary>macOS, Linux, or build it yourself</summary><p>The app is plain Python. With Python 3.10 or newer, run <code>pip install -r requirements.txt</code> and <code>python main.py</code>. Full steps are in the <a href="https://github.com/galavixofficial/Video-Search-Engine#readme" rel="noopener">README</a>.</p></details>
       </div>
-      <figure class="shot"><img src="assets/home.jpg" loading="lazy" width="1440" height="900" alt="The Sceneseek home screen with its viewfinder search box and topic stickers"></figure>
+      <div class="win rv"><div class="win-bar"><i></i><i></i><i></i><span>HOME</span></div><img src="assets/home.jpg" loading="lazy" width="1440" height="900" alt="The Sceneseek home screen with its large search box and rows of frames from the user’s own videos"></div>
     </div>
   </section>
 
   <section class="sec" id="faq">
     <div class="wrap narrow">
-      <p class="eyebrow">Questions</p>
-      <h2>Good to know <mark>before</mark> you start.</h2>
+      <div class="sec-head rv"><p class="eyebrow">Questions</p><h2>Good to know <span class="spec">before</span> you start.</h2></div>
       <details class="faq" open><summary>Is it really free?</summary><p>Yes. Sceneseek is free and open source under the MIT licence. There is no account, subscription or ads.</p></details>
-      <details class="faq"><summary>Are my videos uploaded anywhere?</summary><p>No. Indexing and searching happen on your computer, and the app only answers requests from your own machine. The one download is the search model, once, on first launch.</p></details>
-      <details class="faq"><summary>What can it find, and what can't it?</summary><p>It matches what things <em>look like</em>: scenes, objects, colours, places and actions. It does not listen to speech, so it cannot search by what people say, and it is not good at reading small text on screen. Very short moments can be missed at the default setting; you can raise the detail in Tune.</p></details>
-      <details class="faq"><summary>How accurate are the percentages?</summary><p>They show how closely a frame matches your words compared with the rest of your footage, not a guarantee. Treat green as “very likely”, amber as “worth a look”, and red as “probably not”.</p></details>
-      <details class="faq"><summary>How long does indexing take?</summary><p>It depends on your processor. On our test PC a 10 minute video took about a minute and a half, so an hour of footage takes around ten minutes. Indexing runs in the background and finished videos are searchable straight away. Each video is only processed once.</p></details>
-      <details class="faq"><summary>Which video formats work?</summary><p>MP4, MOV, MKV, AVI, WebM, WMV and others can be indexed and searched. The built-in player plays what your system supports; for anything else, the Open button hands the file to your usual player.</p></details>
-      <details class="faq"><summary>Does the EDL work with my editor?</summary><p>The export is a standard CMX3600 edit decision list, which Premiere Pro, DaVinci Resolve and Final Cut Pro can import. Each kept moment becomes a six second cut with your note as a comment. Relink the clips to your media after importing.</p></details>
-      <details class="faq"><summary>How much disk space does the index use?</summary><p>Very little: about 1 KB per indexed moment, so a thousand hours of footage stays well under a few GB including thumbnails. Your videos are not copied.</p></details>
-      <details class="faq"><summary>Can I use it for work?</summary><p>Yes, the MIT licence allows commercial use. The AI model is OpenAI's open CLIP model, also MIT licensed.</p></details>
+      <details class="faq"><summary>Are my videos uploaded anywhere?</summary><p>No. Indexing and searching happen on your computer, and the app only answers requests from your own machine. The one download is the search model, the first time you start it. The exception is voice search, which uses your browser’s speech service and may send what you say to it. You can ignore the mic and type.</p></details>
+      <details class="faq"><summary>What can it find, and what can't it?</summary><p>It matches what things <em>look like</em>: scenes, objects, colours, places and actions. It does not listen to speech, so it cannot search a transcript, and it does not know people by name.</p></details>
+      <details class="faq"><summary>How accurate are the percentages?</summary><p>They show how closely a frame matches your words compared with the rest of your footage, not a guarantee. Treat green as “very likely”, amber as “worth a look”, and red as a long shot.</p></details>
+      <details class="faq"><summary>How long does indexing take?</summary><p>It depends on your processor. On our test PC a 10 minute video took about a minute and a half, so an hour of footage takes around ten minutes. It runs in the background, and you can search finished videos while it works.</p></details>
+      <details class="faq"><summary>Which video formats work?</summary><p>MP4, MOV, MKV, AVI, WebM, WMV and others can be indexed and searched. The built-in player plays what your system supports. For anything else, open the file in your default player from the screening room.</p></details>
+      <details class="faq"><summary>Does the EDL work with my editor?</summary><p>The export is a standard CMX3600 edit decision list, which Premiere Pro, DaVinci Resolve and Final Cut Pro can import. Each kept moment becomes a six second cut with your note attached.</p></details>
+      <details class="faq"><summary>Can I use it for work?</summary><p>Yes, the MIT licence allows commercial use. The AI model is OpenAI’s open CLIP model, also MIT licensed.</p></details>
     </div>
   </section>
 
-  <section class="sec final">
+  <section class="final">
     <div class="wrap">
       <img src="assets/logo.svg" alt="" width="72" height="72">
-      <h2>Stop scrubbing. <mark>Start finding.</mark></h2>
-      <div class="cta"><a class="btn pop big" href="#download">Download Sceneseek</a></div>
+      <h2>Stop scrubbing. <span class="spec">Start finding.</span></h2>
+      <div class="cta"><a class="btn solid big" href="#download">Download Sceneseek</a></div>
     </div>
   </section>
 </main>
 
 <footer class="foot">
   <div class="wrap foot-in">
-    <p><b>Sceneseek</b> is free software by <a href="https://github.com/galavixofficial" rel="noopener">Galavix</a>, released under the <a href="https://github.com/galavixofficial/Video-Search-Engine/blob/main/LICENSE" rel="noopener">MIT licence</a>.</p>
-    <p class="small">Screenshots use footage from the Blender Foundation open movies <i>Big Buck Bunny</i>, <i>Sintel</i> and <i>Elephants Dream</i> (<a href="https://creativecommons.org/licenses/by/3.0/" rel="noopener">CC BY 3.0</a>) and a clip from test-videos.co.uk. Typefaces: Bricolage Grotesque, Inter and JetBrains Mono (SIL Open Font Licence). Sceneseek is not affiliated with OpenAI or the Blender Foundation.</p>
+    <p><b>Sceneseek</b> is free software by <a href="https://github.com/galavixofficial" rel="noopener">Galavix</a>, released under the <a href="https://github.com/galavixofficial/Video-Search-Engine/blob/main/LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/galavixofficial/Video-Search-Engine" rel="noopener">Source code</a></p>
+    <p class="small">Screenshots use footage from the Blender Foundation open movies <i>Big Buck Bunny</i>, <i>Sintel</i> and <i>Elephants Dream</i> (<a href="https://creativecommons.org/licenses/by/3.0/" rel="noopener">CC BY 3.0</a>). Typefaces: Instrument Serif, Geist and Geist Mono (SIL OFL).</p>
   </div>
 </footer>
 <script>
-document.querySelectorAll(".tabs button").forEach(function (b) {
-  b.addEventListener("click", function () {
-    var i = +b.dataset.shot;
-    document.querySelectorAll(".tabs button").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); });
-    document.querySelectorAll(".gallery .shot").forEach(function (f, k) { f.classList.toggle("on", k === i); });
-  });
-});
+(function () {
+  var rv = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { threshold: .12, rootMargin: "0px 0px -6% 0px" });
+    rv.forEach(function (el) { io.observe(el); });
+  } else rv.forEach(function (el) { el.classList.add("in"); });
+  var r = document.getElementById("dRange"), n = document.getElementById("dNum"), v = document.getElementById("dVerdict"), d = document.getElementById("dial");
+  function upd() {
+    var p = +r.value, k = Math.max(0, Math.min(1, (p - 28) / 68)), hue = Math.round(4 + k * 164);
+    d.style.setProperty("--pc", "hsl(" + hue + " 94% 60%)");
+    n.firstChild.nodeValue = p;
+    v.textContent = (p >= 75 ? "Strong" : p >= 55 ? "Good" : p >= 35 ? "Maybe" : "Long shot") + " match";
+  }
+  r.addEventListener("input", upd); upd();
+})();
 </script>
 </body>
 </html>

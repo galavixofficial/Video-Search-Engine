@@ -69,6 +69,6 @@ website/            the download website
 
 ## Credits and licence
 
-MIT licensed, see [LICENSE](LICENSE). Typefaces: Bricolage Grotesque, Inter and JetBrains Mono (SIL Open Font Licence). Screenshots use footage from the Blender Foundation's open movies *Big Buck Bunny*, *Sintel* and *Elephants Dream* (CC BY 3.0) and a test clip from test-videos.co.uk.
+MIT licensed, see [LICENSE](LICENSE). Typefaces: Instrument Serif, Geist and Geist Mono (SIL Open Font Licence). Screenshots use footage from the Blender Foundation's open movies *Big Buck Bunny*, *Sintel* and *Elephants Dream* (CC BY 3.0) and a test clip from test-videos.co.uk.
 
 Built by [Galavix](https://github.com/galavixofficial).
