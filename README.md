@@ -6,10 +6,10 @@
 
 ## What it does
 
-- **Describe it, find it.** Search your own footage in plain English. Results appear as you type, grouped by video, each with its best moments and a heatmap of where in the timeline it matches.
+- **Describe it, find it.** Search your own footage in plain English. Results read like a video site: a thumbnail per video, key-moment timestamps you can click, and every match percentage colour-coded from red (weak) to green (strong).
 - **Power search.** `dog + snow` asks for both, `beach -night` leaves night shots out.
 - **Explore.** Sceneseek sorts your footage into topics on its own (faces, beaches, cars, text on screen...) so you can browse without typing.
-- **A real player.** Opens at the match, with the match heatmap, a scene strip, playback speed, keyboard control and search inside that one video.
+- **A watch page like a video site.** Opens at the match, with a coloured match heatmap, a scene strip, playback speed, keyboard control, search inside that one video, and an up-next list of matches, similar videos and saved moments.
 - **Saved moments.** Star shots, add notes, export the list as CSV. Save any frame as a full-resolution picture.
 - **Search by image.** Paste or drop a picture to find footage that looks like it, or click **Similar** on any moment.
 - **Built for speed.** Hover previews, a command palette (`Ctrl K`), shortcuts for everything, light and dark themes.

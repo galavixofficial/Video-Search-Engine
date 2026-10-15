@@ -339,6 +339,13 @@ def create_app(engine: Engine | None = None) -> FastAPI:
     def videos():
         return {"videos": [eng.video_payload(r) for r in eng.store.list_videos()]}
 
+    @app.get("/api/videos/{video_id}")
+    def one_video(video_id: int):
+        row = eng.store.get_video(video_id)
+        if not row:
+            raise HTTPException(404, "Video not found")
+        return eng.video_payload(row)
+
     @app.delete("/api/videos/{video_id}")
     def delete_video(video_id: int):
         if not eng.store.delete_video(video_id):

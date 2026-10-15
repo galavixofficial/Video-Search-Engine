@@ -107,3 +107,11 @@ def test_explore_groups_frames_into_concepts(engine, client, tmp_path, monkeypat
     assert {c["label"] for c in concepts} == {"Red things", "Green things", "Blue things"}
     green = [c for c in concepts if c["label"] == "Green things"][0]
     assert 4000 <= green["cover"]["ts_ms"] < 8000 and green["frames"] == 4
+
+
+def test_single_video_endpoint(engine, client, tmp_path):
+    index(engine, tmp_path)
+    vid = vid_id(client, "clip.mp4")
+    one = client.get(f"/api/videos/{vid}").json()
+    assert one["name"] == "clip.mp4" and one["exists"] and one["frames"] >= 1 and "key" not in one
+    assert client.get("/api/videos/9999").status_code == 404
