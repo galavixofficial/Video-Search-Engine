@@ -6,18 +6,18 @@
 
 ## What it does
 
-- **Describe it, find it.** Search your own footage in plain English. Results read like a video site: a thumbnail per video, key-moment timestamps you can click, and every match percentage colour-coded from red (weak) to green (strong).
+- **Describe it, find it.** Search your own footage in plain English. Results appear as contact sheets: a strip of real frames per video, each frame stamped with its timecode and a **colour-coded match percentage** (red for a long shot, green for a strong match), plus a heatmap of where in the film it matches.
 - **Power search.** `dog + snow` asks for both, `beach -night` leaves night shots out.
-- **Explore.** Sceneseek sorts your footage into topics on its own (faces, beaches, cars, text on screen...) so you can browse without typing.
-- **A watch page like a video site.** Opens at the match, with a coloured match heatmap, a scene strip, playback speed, keyboard control, search inside that one video, and an up-next list of matches, similar videos and saved moments.
-- **Saved moments.** Star shots, add notes, export the list as CSV. Save any frame as a full-resolution picture.
-- **Search by image.** Paste or drop a picture to find footage that looks like it, or click **Similar** on any moment.
-- **Built for speed.** Hover previews, a command palette (`Ctrl K`), shortcuts for everything, light and dark themes.
+- **Topics.** Sceneseek sorts your footage into topics on its own (faces, beaches, cars, text on screen...) so you can browse without typing.
+- **A screening room.** The video plays at the match, above a film-strip scrubber made of real frames with match flags on top. Step through takes, change speed, search inside that one video, find similar moments, grab full-resolution frames.
+- **A reel with EDL export.** Keep moments, add notes, and export a cut list (CMX3600 EDL) for Premiere Pro, DaVinci Resolve or Final Cut, or a CSV.
+- **Search by image.** Paste or drop a picture to find footage that looks like it.
+- **Fast to drive.** Hover previews, a command palette (`Ctrl K`), keyboard shortcuts everywhere, a dark cinema theme and a light paper theme.
 - **Smart indexing.** Watched folders, repeated scenes skipped, pause and cancel, only changed files re-read.
 - **Private by design.** The AI runs on your computer. Your videos are never copied or changed, and the app only answers to your own machine.
 
-![Explore](docs/screenshots/explore.jpg)
-![Player](docs/screenshots/player.jpg)
+![Topics](docs/screenshots/topics.jpg)
+![Screening room](docs/screenshots/watch.jpg)
 
 ## Download
 
@@ -69,6 +69,6 @@ website/            the download website
 
 ## Credits and licence
 
-MIT licensed, see [LICENSE](LICENSE). Screenshots use footage from the Blender Foundation's open movies *Big Buck Bunny*, *Sintel* and *Elephants Dream* (CC BY 3.0) and a test clip from test-videos.co.uk.
+MIT licensed, see [LICENSE](LICENSE). Typefaces: Bricolage Grotesque, Inter and JetBrains Mono (SIL Open Font Licence). Screenshots use footage from the Blender Foundation's open movies *Big Buck Bunny*, *Sintel* and *Elephants Dream* (CC BY 3.0) and a test clip from test-videos.co.uk.
 
 Built by [Galavix](https://github.com/galavixofficial).

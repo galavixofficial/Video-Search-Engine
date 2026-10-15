@@ -434,6 +434,7 @@ def create_app(engine: Engine | None = None) -> FastAPI:
         for it in items:
             row = eng.store.get_video(it["video_id"]) if it["video_id"] else None
             it["duration"] = row["duration"] if row else 0
+            it["fps"] = row["fps"] if row else 0
             it["available"] = bool(row) and os.path.isfile(row["path"])
         return {"saved": items}
 

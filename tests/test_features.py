@@ -66,6 +66,7 @@ def test_saved_moments_round_trip(engine, client, tmp_path):
     assert client.patch(f"/api/saved/{first['id']}", json={"note": "renamed"}).status_code == 200
     items = client.get("/api/saved").json()["saved"]
     assert items[0]["note"] == "renamed" and items[0]["video_id"] == vid and items[0]["available"]
+    assert items[0]["fps"] > 0 and items[0]["duration"] > 0           # the reel needs both to write an EDL
     assert client.delete(f"/api/saved/{first['id']}").status_code == 200
     assert client.get("/api/saved").json()["saved"] == []
 
