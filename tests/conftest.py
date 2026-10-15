@@ -60,6 +60,7 @@ def engine(tmp_path, monkeypatch, fake_encoder):
     eng = appmain.Engine(home=tmp_path / "home")
     monkeypatch.setattr(eng, "encoder", lambda: fake_encoder)
     eng.indexer.get_encoder = lambda: fake_encoder
+    eng.explorer.get_encoder = lambda: fake_encoder
     yield eng
     eng.indexer.stop = True
 

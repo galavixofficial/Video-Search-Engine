@@ -7,6 +7,8 @@ import json
 import mimetypes
 import os
 import platform
+import re
+import time
 import shutil
 import subprocess
 import threading
@@ -23,11 +25,23 @@ from PIL import Image
 
 from . import clip, picker
 from .config import APP_NAME, VERSION, VIDEO_EXTENSIONS, Settings, data_dir, resource_dir
+from .explore import Explorer
 from .indexer import Indexer
 from .store import Store, path_key
 
 ALLOWED_HOSTS = {"127.0.0.1", "localhost", "[::1]"}
 SPEED_THREADS = {"balanced": max(1, (os.cpu_count() or 4) // 2), "max": 0}
+
+
+_NEG = re.compile(r'(?:^|\s)-(?:"([^"]+)"|(\S+))')
+
+
+def parse_query(text: str) -> tuple[list[str], list[str]]:
+    """Split a query into things to find and things to avoid."""
+    neg = [a or b for a, b in _NEG.findall(text)]
+    rest = _NEG.sub(" ", text)
+    pos = [p.strip() for p in re.split(r"\+|,", rest) if p.strip()]
+    return pos, [n.strip() for n in neg if n.strip()]
 
 
 class Engine:
@@ -44,6 +58,7 @@ class Engine:
         self._enc_lock = threading.Lock()
         self._qcache: OrderedDict[str, np.ndarray] = OrderedDict()
         self.indexer = Indexer(self.store, self.encoder, self.settings.get)
+        self.explorer = Explorer(self.store, self.encoder)
         self.thumbs = self.home / "thumbs"
         self.thumbs.mkdir(exist_ok=True)
         self.uploads = self.home / "videos"
@@ -74,7 +89,7 @@ class Engine:
     def note_index_quality(self):
         self.meta_path.write_text(json.dumps({"quality": self.settings.get()["quality"]}), encoding="utf8")
 
-    def text_vector(self, text: str) -> np.ndarray:
+    def _phrase_vector(self, text: str) -> np.ndarray:
         key = text.strip().lower()
         if key in self._qcache:
             self._qcache.move_to_end(key)
@@ -84,9 +99,23 @@ class Engine:
         v = enc.encode_text(texts).mean(axis=0)
         v = (v / max(float(np.linalg.norm(v)), 1e-12)).astype(np.float32)
         self._qcache[key] = v
-        while len(self._qcache) > 128:
+        while len(self._qcache) > 256:
             self._qcache.popitem(last=False)
         return v
+
+    def text_vector(self, text: str) -> np.ndarray:
+        """Turn a query into one vector. `a + b` asks for both, `-word` or `-"two words"` pushes results away."""
+        pos, neg = parse_query(text)
+        if not pos:
+            raise HTTPException(400, "Describe what you are looking for, not only what to leave out.")
+        v = np.mean([self._phrase_vector(p) for p in pos], axis=0)
+        v = v / max(float(np.linalg.norm(v)), 1e-12)
+        if neg:
+            n = np.mean([self._phrase_vector(p) for p in neg], axis=0)
+            n = n / max(float(np.linalg.norm(n)), 1e-12)
+            v = v - 0.35 * n
+            v = v / max(float(np.linalg.norm(v)), 1e-12)
+        return v.astype(np.float32)
 
     # files ----------------------------------------------------
     def rescan(self) -> int:
@@ -131,6 +160,16 @@ class Engine:
         self.thumbs.mkdir(exist_ok=True)
 
 
+def _reveal(path: str):
+    system = platform.system()
+    if system == "Windows":
+        subprocess.Popen(["explorer", "/select,", os.path.normpath(path)])
+    elif system == "Darwin":
+        subprocess.Popen(["open", "-R", path])
+    else:
+        subprocess.Popen(["xdg-open", os.path.dirname(path)])
+
+
 def create_app(engine: Engine | None = None) -> FastAPI:
     eng = engine or Engine()
 
@@ -156,6 +195,8 @@ def create_app(engine: Engine | None = None) -> FastAPI:
             if origin and origin.split("://", 1)[-1] != request.headers.get("host"):
                 return JSONResponse({"error": "Forbidden"}, status_code=403)
         response = await call_next(request)
+        if not request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-cache"   # always pick up a new version of the UI
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         return response
@@ -324,15 +365,29 @@ def create_app(engine: Engine | None = None) -> FastAPI:
             return None
         return {int(x) for x in video_ids.split(",") if x.strip().isdigit()} or None
 
+    def _scope(video_ids: str | None, folder: str | None):
+        ids = _ids(video_ids)
+        if folder:
+            prefix = path_key(folder) + os.sep
+            in_folder = {v["id"] for v in eng.store.list_videos() if path_key(v["path"]).startswith(prefix)}
+            ids = in_folder if ids is None else ids & in_folder
+            if not ids:
+                ids = {-1}
+        return ids
+
     @app.get("/api/search")
-    def search(q: str, k: int = 24, per_video: int = 3, video_ids: str | None = None, min_percent: float = 0):
+    def search(q: str, k: int = 24, per_video: int = 3, video_ids: str | None = None, folder: str | None = None,
+               min_percent: float = 0):
         need_model()
         q = q.strip()
         if not q:
             raise HTTPException(400, "Type something to search for.")
-        results = eng.store.search(eng.text_vector(q), "text", k=min(max(k, 1), 60), per_video=min(max(per_video, 1), 6),
-                                   video_ids=_ids(video_ids), min_percent=min_percent)
-        return {"query": q, "results": results, "total_frames": eng.store.n}
+        t0 = time.perf_counter()
+        results = eng.store.search(eng.text_vector(q), "text", k=min(max(k, 1), 60), per_video=min(max(per_video, 1), 12),
+                                   video_ids=_scope(video_ids, folder), min_percent=max(0.0, min(min_percent, 100.0)))
+        pos, neg = parse_query(q)
+        return {"query": q, "terms": pos, "excluded": neg, "results": results, "total_frames": eng.store.n,
+                "took_ms": round((time.perf_counter() - t0) * 1000)}
 
     @app.post("/api/search/image")
     async def search_image(file: UploadFile = File(...)):
@@ -342,7 +397,7 @@ def create_app(engine: Engine | None = None) -> FastAPI:
         except Exception:
             raise HTTPException(400, "That does not look like an image.")
         vec = eng.encoder().encode_images([img])[0]
-        return {"query": "image", "results": eng.store.search(vec, "image", k=24), "total_frames": eng.store.n}
+        return {"query": "image", "results": eng.store.search(vec, "image", k=24, per_video=4), "total_frames": eng.store.n}
 
     @app.get("/api/similar")
     def similar(video_id: int, ts_ms: int, k: int = 24):
@@ -351,8 +406,84 @@ def create_app(engine: Engine | None = None) -> FastAPI:
         if hit is None:
             raise HTTPException(404, "Moment not found")
         vec, fid = hit
-        return {"query": "similar", "results": eng.store.search(vec, "image", k=min(max(k, 1), 60), exclude_frame=fid),
+        return {"query": "similar", "results": eng.store.search(vec, "image", k=min(max(k, 1), 60), per_video=4, exclude_frame=fid),
                 "total_frames": eng.store.n}
+
+    # ── explore / saved / scenes ────────────────────────────────
+    @app.get("/api/explore")
+    def explore():
+        need_model()
+        return {"concepts": eng.explorer.overview(eng.settings.get()["quality"]), "stats": eng.store.stats()}
+
+    @app.get("/api/videos/{video_id}/scenes")
+    def scenes(video_id: int):
+        if not eng.store.get_video(video_id):
+            raise HTTPException(404, "Video not found")
+        return {"scenes": eng.store.scenes(video_id)}
+
+    @app.get("/api/saved")
+    def saved():
+        items = eng.store.list_saved()
+        for it in items:
+            row = eng.store.get_video(it["video_id"]) if it["video_id"] else None
+            it["duration"] = row["duration"] if row else 0
+            it["available"] = bool(row) and os.path.isfile(row["path"])
+        return {"saved": items}
+
+    @app.post("/api/saved")
+    async def add_saved(request: Request):
+        body = await request.json()
+        res = eng.store.add_saved(int(body.get("video_id", 0)), int(body.get("ts_ms", 0)), str(body.get("note", "")))
+        if res is None:
+            raise HTTPException(404, "Video not found")
+        return res
+
+    @app.patch("/api/saved/{saved_id}")
+    async def edit_saved(saved_id: int, request: Request):
+        if not eng.store.update_saved(saved_id, str((await request.json()).get("note", ""))):
+            raise HTTPException(404, "Not found")
+        return {"ok": True}
+
+    @app.delete("/api/saved/{saved_id}")
+    def delete_saved(saved_id: int):
+        if not eng.store.delete_saved(saved_id):
+            raise HTTPException(404, "Not found")
+        return {"ok": True}
+
+    def frames_dir() -> Path:
+        return Path(os.environ.get("SCENESEEK_FRAMES") or (Path.home() / "Pictures" / APP_NAME))
+
+    @app.post("/api/videos/{video_id}/save-frame")
+    async def save_frame(video_id: int, request: Request):
+        """Save the full-resolution frame at a moment to Pictures/Sceneseek."""
+        ts_ms = int((await request.json()).get("ts_ms", 0))
+        path = _row_path(video_id)
+        cap = cv2.VideoCapture(path)
+        try:
+            cap.set(cv2.CAP_PROP_POS_MSEC, max(0, ts_ms))
+            ok, frame = cap.read()
+        finally:
+            cap.release()
+        if not ok:
+            raise HTTPException(422, "Could not read that frame.")
+        out_dir = frames_dir()
+        out_dir.mkdir(parents=True, exist_ok=True)
+        sec = ts_ms // 1000
+        stamp = f"{sec // 3600:02d}h{sec % 3600 // 60:02d}m{sec % 60:02d}s"
+        out = out_dir / f"{Path(path).stem}_{stamp}.jpg"
+        ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
+        out.write_bytes(buf.tobytes())   # imencode + write_bytes also works for non-ASCII paths on Windows
+        return {"path": str(out), "folder": str(out_dir)}
+
+    @app.post("/api/reveal-path")
+    async def reveal_path(request: Request):
+        """Show a file Sceneseek itself saved (only inside its own frames folder)."""
+        target = Path(str((await request.json()).get("path", ""))).resolve()
+        allowed = frames_dir().resolve()
+        if allowed not in target.parents or not target.exists():
+            raise HTTPException(403, "Not allowed")
+        _reveal(str(target))
+        return {"ok": True}
 
     # ── media ───────────────────────────────────────────────────
     @app.get("/api/thumb/{video_id}")
@@ -378,14 +509,7 @@ def create_app(engine: Engine | None = None) -> FastAPI:
 
     @app.post("/api/videos/{video_id}/reveal")
     def reveal(video_id: int):
-        path = _row_path(video_id)
-        system = platform.system()
-        if system == "Windows":
-            subprocess.Popen(["explorer", "/select,", os.path.normpath(path)])
-        elif system == "Darwin":
-            subprocess.Popen(["open", "-R", path])
-        else:
-            subprocess.Popen(["xdg-open", os.path.dirname(path)])
+        _reveal(_row_path(video_id))
         return {"ok": True}
 
     @app.post("/api/videos/{video_id}/open")

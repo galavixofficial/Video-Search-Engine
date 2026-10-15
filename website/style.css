@@ -65,7 +65,16 @@ em { font-style: normal; background: linear-gradient(135deg, var(--acc), var(--a
 .grid.three { grid-template-columns: repeat(3, 1fr); }
 .grid article { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
 .grid p { color: var(--mut); font-size: .95rem; margin: 0; }
-.tour { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.fi { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; margin-bottom: 14px; font-size: 1.1rem; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--acc), var(--acc2)); box-shadow: 0 8px 20px rgba(255, 90, 80, .25); }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: -14px 0 26px; }
+.tabs button { font: inherit; font-weight: 650; font-size: .92rem; color: var(--mut); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; transition: .15s; }
+.tabs button:hover { color: var(--ink); border-color: var(--line2); }
+.tabs button[aria-selected="true"] { color: #fff; background: linear-gradient(135deg, var(--acc), var(--acc2)); border-color: transparent; }
+.gallery .shot { display: none; }
+.gallery .shot.on { display: block; animation: show .35s ease both; }
+@keyframes show { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.grid article { transition: border-color .2s, transform .2s; }
+.grid article:hover { border-color: var(--line2); transform: translateY(-3px); }
 
 .dl { display: grid; grid-template-columns: 1fr 1fr; gap: 54px; align-items: center; }
 .dl h2 { margin-bottom: 18px; }
@@ -86,7 +95,7 @@ em { font-style: normal; background: linear-gradient(135deg, var(--acc), var(--a
 
 @media (max-width: 900px) {
   .grid, .grid.three { grid-template-columns: repeat(2, 1fr); }
-  .steps, .tour, .dl { grid-template-columns: 1fr; }
+  .steps, .dl { grid-template-columns: 1fr; }
   .strip-in { grid-template-columns: repeat(2, 1fr); }
   .nav nav a:not(.btn) { display: none; }
   .sec { padding: 64px 0; }

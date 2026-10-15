@@ -6,12 +6,18 @@
 
 ## What it does
 
-- **Describe it, find it.** Search your own footage in plain English. Results show the matching moments with thumbnails and timestamps, and clicking one plays the video from that point.
-- **Search by image.** Drop in or paste a picture to find footage that looks like it, or click **Find similar** on any moment.
-- **Fast to set up.** Add a folder once. Sceneseek indexes it in the background, skips repeated scenes, and picks up new videos next time you open it.
-- **Private by design.** The search model runs locally. Your videos are never copied or changed, and the app only answers to your own computer.
-- **A proper library.** See what is indexed, re-index or remove videos, pause or cancel indexing, export results as CSV.
-- **Light and dark themes**, keyboard shortcuts, and a layout that works at any window size.
+- **Describe it, find it.** Search your own footage in plain English. Results appear as you type, grouped by video, each with its best moments and a heatmap of where in the timeline it matches.
+- **Power search.** `dog + snow` asks for both, `beach -night` leaves night shots out.
+- **Explore.** Sceneseek sorts your footage into topics on its own (faces, beaches, cars, text on screen...) so you can browse without typing.
+- **A real player.** Opens at the match, with the match heatmap, a scene strip, playback speed, keyboard control and search inside that one video.
+- **Saved moments.** Star shots, add notes, export the list as CSV. Save any frame as a full-resolution picture.
+- **Search by image.** Paste or drop a picture to find footage that looks like it, or click **Similar** on any moment.
+- **Built for speed.** Hover previews, a command palette (`Ctrl K`), shortcuts for everything, light and dark themes.
+- **Smart indexing.** Watched folders, repeated scenes skipped, pause and cancel, only changed files re-read.
+- **Private by design.** The AI runs on your computer. Your videos are never copied or changed, and the app only answers to your own machine.
+
+![Explore](docs/screenshots/explore.jpg)
+![Player](docs/screenshots/player.jpg)
 
 ## Download
 
@@ -54,7 +60,8 @@ main.py             launcher: starts the local server and opens the window
 app/main.py         API (FastAPI) and security checks
 app/clip.py         ONNX CLIP encoder and model download
 app/indexer.py      background indexing
-app/store.py        SQLite library and in-memory search
+app/store.py        SQLite library, in-memory search, saved moments
+app/explore.py      automatic topics for the Explore page
 app/static/         the web UI (plain HTML, CSS and JavaScript)
 tests/              pytest suite
 website/            the download website

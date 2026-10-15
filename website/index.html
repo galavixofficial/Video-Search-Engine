@@ -43,14 +43,14 @@
     <div class="wrap">
       <p class="eyebrow">Free · Private · Works offline</p>
       <h1>Find any moment in your videos<br><em>by describing it.</em></h1>
-      <p class="lead">You remember <i>what</i> happened, not which file or when. Type it, and Sceneseek takes you to the exact second. Everything stays on your computer.</p>
+      <p class="lead">You remember <i>what</i> happened, not which file or when. Type it, and Sceneseek takes you to the exact second. It even sorts your footage into topics on its own. Everything stays on your computer.</p>
       <div class="cta">
         <a class="btn primary big" href="#download"><svg viewBox="0 0 24 24" class="ic"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download for Windows</a>
         <a class="btn ghost big" href="https://github.com/galavixofficial/Video-Search-Engine" rel="noopener">View on GitHub</a>
       </div>
       <p class="note">Windows 10 and 11 · about 100 MB · free and open source</p>
       <figure class="shot hero-shot">
-        <img src="assets/results.jpg" width="1360" height="860" alt="Sceneseek showing search results for “a dragon”, with thumbnails and timestamps from several videos">
+        <img src="assets/results.jpg" width="1440" height="900" alt="Sceneseek showing search results for “a dragon”, with thumbnails and timestamps from several videos">
       </figure>
     </div>
   </section>
@@ -81,14 +81,18 @@
       <p class="eyebrow">Features</p>
       <h2>Built for people who have more footage than time.</h2>
       <div class="grid">
-        <article><h3>Search by description</h3><p>Plain English works. Scenes, objects, colours, places and actions are all fair game.</p></article>
-        <article><h3>Search by image</h3><p>Paste a screenshot or choose a photo to find similar shots, or click <b>Find similar</b> on any result.</p></article>
-        <article><h3>Several moments per video</h3><p>Each video shows its best distinct moments, so a long recording does not bury the answer.</p></article>
-        <article><h3>Private by design</h3><p>The AI model runs on your computer. Your videos are never copied, uploaded or changed.</p></article>
-        <article><h3>Smart indexing</h3><p>Skips repeated scenes, runs in the background, can be paused, and only re-reads files that changed.</p></article>
-        <article><h3>Watched folders</h3><p>Add a folder once. New videos are found automatically the next time you open the app.</p></article>
-        <article><h3>A real library</h3><p>See what is indexed, re-index or remove videos, and export your results to a spreadsheet.</p></article>
-        <article><h3>Tidy and quick</h3><p>Light and dark themes, keyboard shortcuts and a clean layout that stays out of your way.</p></article>
+        <article><span class="fi">⌕</span><h3>Search by description</h3><p>Plain English works. Scenes, objects, colours, places and actions are all fair game, and results appear as you type.</p></article>
+        <article><span class="fi">±</span><h3>Power search</h3><p><code>dog + snow</code> asks for both. <code>beach -night</code> leaves night shots out. Sharper results without learning a query language.</p></article>
+        <article><span class="fi">▤</span><h3>Match heatmap</h3><p>Every video gets a strip showing where in its timeline the match is strongest. Click any point to play from there.</p></article>
+        <article><span class="fi">◎</span><h3>Explore</h3><p>Sceneseek sorts your footage into topics on its own: beaches, faces, cars, text on screen and more. Browse without typing.</p></article>
+        <article><span class="fi">★</span><h3>Saved moments</h3><p>Star the shots you need, add a note, export the list. Your shortlist for an edit or a report, built while you search.</p></article>
+        <article><span class="fi">◐</span><h3>Search by image</h3><p>Paste a screenshot or drop a photo to find similar shots, or hit <b>Similar</b> on any result.</p></article>
+        <article><span class="fi">⌖</span><h3>Search inside a video</h3><p>In the player, search one long recording on its own and step through every match with the keyboard.</p></article>
+        <article><span class="fi">▣</span><h3>Grab the frame</h3><p>Save the full-resolution frame of any moment as a picture in one click, ready for a thumbnail or a slide.</p></article>
+        <article><span class="fi">▶</span><h3>Hover previews</h3><p>Point at a result to watch it silently before you open it. A scene strip lets you jump around a video in seconds.</p></article>
+        <article><span class="fi">⌘</span><h3>Keyboard first</h3><p>A command palette (<b>Ctrl K</b>) for everything, plus shortcuts to play, step through matches and save.</p></article>
+        <article><span class="fi">⟳</span><h3>Smart indexing</h3><p>Skips repeated scenes, runs in the background, can be paused, and only re-reads files that changed.</p></article>
+        <article><span class="fi">⛨</span><h3>Private by design</h3><p>The AI runs on your computer. Your videos are never copied, uploaded or changed.</p></article>
       </div>
     </div>
   </section>
@@ -96,10 +100,22 @@
   <section class="sec" id="tour">
     <div class="wrap">
       <p class="eyebrow">A closer look</p>
-      <h2>Simple on the surface.</h2>
-      <div class="tour">
-        <figure class="shot"><img src="assets/player.jpg" loading="lazy" width="1360" height="860" alt="The player opened at a matching moment, with other matching moments listed beside it"><figcaption>Open a result and pick up exactly where it happens, with the other matches one click away.</figcaption></figure>
-        <figure class="shot"><img src="assets/library.jpg" loading="lazy" width="1360" height="860" alt="The library view showing indexed videos with thumbnails and status"><figcaption>Your library at a glance: what is indexed, what is waiting, and what needs attention.</figcaption></figure>
+      <h2>Powerful underneath. Simple on the surface.</h2>
+      <div class="tabs" role="tablist" aria-label="Screens">
+        <button type="button" role="tab" aria-selected="true" data-shot="0">Player</button>
+        <button type="button" role="tab" aria-selected="false" data-shot="1">Power search</button>
+        <button type="button" role="tab" aria-selected="false" data-shot="2">Explore</button>
+        <button type="button" role="tab" aria-selected="false" data-shot="3">Saved</button>
+        <button type="button" role="tab" aria-selected="false" data-shot="4">Library</button>
+        <button type="button" role="tab" aria-selected="false" data-shot="5">Command palette</button>
+      </div>
+      <div class="gallery">
+        <figure class="shot on"><img src="assets/player.jpg" loading="lazy" width="1440" height="900" alt="The player at a matching moment, with the match heatmap, scene strip and other matches"><figcaption>The player opens at the match. The heatmap shows where else it happens, the scene strip lets you jump anywhere, and the side panel saves the moment, grabs the frame or finds similar shots.</figcaption></figure>
+        <figure class="shot"><img src="assets/power.jpg" loading="lazy" width="1440" height="900" alt="Results for a flying creature without dragons"><figcaption>“a flying creature -dragon”: the flying squirrel rises to the top once the dragons are left out.</figcaption></figure>
+        <figure class="shot"><img src="assets/explore.jpg" loading="lazy" width="1440" height="900" alt="Explore page with automatic topics such as rabbits, dragons and close-ups"><figcaption>Explore finds the topics in your footage by itself. One click shows every moment of each.</figcaption></figure>
+        <figure class="shot"><img src="assets/saved.jpg" loading="lazy" width="1440" height="900" alt="Saved moments with notes"><figcaption>Saved moments with your notes, ready to export.</figcaption></figure>
+        <figure class="shot"><img src="assets/library.jpg" loading="lazy" width="1440" height="900" alt="Library of indexed videos"><figcaption>Your library: watched folders, progress, and anything that needs attention.</figcaption></figure>
+        <figure class="shot"><img src="assets/palette.jpg" loading="lazy" width="1440" height="900" alt="Command palette suggesting topics and videos"><figcaption>Ctrl K jumps to any video, topic, page or command.</figcaption></figure>
       </div>
     </div>
   </section>
@@ -135,7 +151,7 @@
         <details class="box"><summary>macOS, Linux, or build it yourself</summary>
           <p>The app is plain Python. With Python 3.10 or newer, run <code>pip install -r requirements.txt</code> and <code>python main.py</code>. Full steps are in the <a href="https://github.com/galavixofficial/Video-Search-Engine#run-from-source" rel="noopener">README</a>.</p></details>
       </div>
-      <figure class="shot"><img src="assets/settings.jpg" loading="lazy" width="1360" height="1000" alt="The settings page with detail, repeated-scene and speed controls"></figure>
+      <figure class="shot"><img src="assets/explore.jpg" loading="lazy" width="1440" height="900" alt="Explore page with automatic topics"></figure>
     </div>
   </section>
 
@@ -168,5 +184,14 @@
     <p class="small">Screenshots use footage from the Blender Foundation open movies <i>Big Buck Bunny</i>, <i>Sintel</i> and <i>Elephants Dream</i> (<a href="https://creativecommons.org/licenses/by/3.0/" rel="noopener">CC BY 3.0</a>) and a clip from test-videos.co.uk. Sceneseek is not affiliated with OpenAI or the Blender Foundation.</p>
   </div>
 </footer>
+<script>
+document.querySelectorAll(".tabs button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var i = +b.dataset.shot;
+    document.querySelectorAll(".tabs button").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); });
+    document.querySelectorAll(".gallery .shot").forEach(function (f, k) { f.classList.toggle("on", k === i); });
+  });
+});
+</script>
 </body>
 </html>
