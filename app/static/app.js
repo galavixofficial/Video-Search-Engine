@@ -147,6 +147,7 @@ async function route() {
   if (prev === "search" && view !== "search") state.scroll = scrollY;
   if (prev === "watch" && view !== "watch") stopWatch();
   state.view = view;
+  CP.el.classList.remove("on");
   document.body.classList.toggle("is-watch", view === "watch");
   $$(".view").forEach((v) => (v.hidden = v.id !== view));
   $$(".tabs a[data-tab]").forEach((a) => a.classList.toggle("on", a.dataset.tab === page && view !== "setup"));
