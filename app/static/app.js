@@ -30,7 +30,7 @@ function icon(name) {
 /** Thumbnails load shortly before they scroll into view. (Native lazy loading proved unreliable inside animated, scrolling panels.) */
 const lazy = new IntersectionObserver((entries) => {
   for (const e of entries) if (e.isIntersecting) { lazy.unobserve(e.target); e.target.src = e.target.dataset.src; }
-}, { rootMargin: "500px" });
+}, { rootMargin: "600px" });
 function img(src, alt = "") {
   const i = h("img", { alt, decoding: "async" });
   i.onload = () => i.classList.add("ok");
@@ -54,7 +54,7 @@ async function api(path, opts = {}) {
 function toast(msg, kind = "", action) {
   const t = h("div", { class: `toast ${kind}`, role: "status" }, h("span", {}, msg),
     action ? h("button", { type: "button", onclick: () => { action.fn(); close(); } }, action.label) : null);
-  function close() { t.classList.add("out"); setTimeout(() => t.remove(), 260); }
+  function close() { t.classList.add("out"); setTimeout(() => t.remove(), 300); }
   $("#toasts").append(t);
   setTimeout(close, action ? 7000 : kind === "err" ? 6500 : 3800);
 }
@@ -87,21 +87,32 @@ function ago(ts) {
 const plural = (n, one, many) => `${n.toLocaleString()} ${n === 1 ? one : many || one + "s"}`;
 const thumbUrl = (id, t, w = 480) => `/api/thumb/${id}?t=${Math.max(0, Math.round(t))}&w=${w}`;
 const verdict = (p) => (p >= 75 ? "Strong" : p >= 55 ? "Good" : p >= 35 ? "Maybe" : "Long shot");
-/** Match percentage to a colour: red (weak) through amber and lime to green (strong). */
-const pcColor = (p) => `hsl(${Math.round(Math.max(0, Math.min(1, (p - 30) / 60)) * 120)} 88% 56%)`;
+/** Match percentage to a colour on one spectrum: red (weak), amber, yellow, lime, aqua (strong). */
+const pcColor = (p) => `hsl(${Math.round(4 + Math.max(0, Math.min(1, (p - 28) / 68)) * 164)} 94% ${p > 40 ? 60 : 58}%)`;
 const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 const typing = (el) => el && (/INPUT|TEXTAREA|SELECT/.test(el.tagName) || el.isContentEditable);
-const sep = () => h("span", { class: "sep" }, "·");
-const joinMeta = (parts) => parts.filter(Boolean).flatMap((p, i) => (i ? [sep(), p] : [p]));
 const baseName = (f) => f.split(/[\\/]/).filter(Boolean).pop() || f;
-const COLORS = ["--sun", "--mint", "--sky", "--lilac", "--pink", "--coral"];
+const pad = (n, w = 2) => String(n).padStart(w, "0");
+const span = (...k) => h("span", {}, ...k);
+
+/** Animate a number from 0 up to its final value. */
+function countUp(el) {
+  const to = +el.dataset.to, t0 = performance.now(), dur = 1100;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const step = (now) => {
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 4);
+    el.firstChild.nodeValue = String(Math.round(to * e));
+    if (k < 1) requestAnimationFrame(step);
+  };
+  el.firstChild.nodeValue = "0"; requestAnimationFrame(step);
+}
 
 /* ═════════════════════════════ state ═════════════════════════════ */
 const store = {
   get(k, d) { try { const v = localStorage.getItem("sceneseek." + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem("sceneseek." + k, JSON.stringify(v)); } catch { /* storage off */ } },
 };
-const prefs = { instant: store.get("instant", true), hover: store.get("hover", true), per: store.get("per", 4), view: store.get("view", "videos"), libView: store.get("libView", "grid") };
+const prefs = { instant: store.get("instant", true), hover: store.get("hover", true), per: store.get("per", 4), view: store.get("view", "videos"), libView: store.get("libView", "list") };
 function setPref(k, v) { prefs[k] = v; store.set(k, v); }
 
 const state = {
@@ -138,7 +149,7 @@ async function route() {
   state.view = view;
   document.body.classList.toggle("is-watch", view === "watch");
   $$(".view").forEach((v) => (v.hidden = v.id !== view));
-  $$(".dock a[data-tab]").forEach((a) => a.classList.toggle("on", a.dataset.tab === page && view !== "setup"));
+  $$(".tabs a[data-tab]").forEach((a) => a.classList.toggle("on", a.dataset.tab === page && view !== "setup"));
   placeSearch();
   if (view !== prev) scrollTo(0, 0);
   if (view === "search") { renderScopes(); renderSearchPage(); if (prev !== "search" && state.results) scrollTo(0, state.scroll); }
@@ -152,7 +163,7 @@ addEventListener("hashchange", route);
 const go = (page) => { if (location.hash === "#" + page) route(); else location.hash = "#" + page; };
 const goBack = () => { if (history.length > 1) history.back(); else go("search"); };
 
-/** The search box is big on the home page and slim in the header everywhere else. */
+/** The search box is a hero on the home page and slim in the header everywhere else. */
 function placeSearch() {
   const home = state.view === "search" && !state.results;
   const slot = home ? $("#heroSlot") : $("#hdrSlot"), form = $("#searchForm");
@@ -198,13 +209,13 @@ function renderChrome(st) {
   if (busy) {
     const pct = ix.current ? Math.round(ix.current.pct) : 0;
     rec.classList.toggle("paused", ix.paused);
-    $("#recText").textContent = ix.paused ? `PAUSED ${pct}%` : `REC ${pct}%`;
+    $("#recText").textContent = ix.paused ? `Paused ${pct}%` : `Indexing ${pct}%`;
     $("#jobFill").style.width = pct + "%";
     $("#jobName").textContent = ix.paused ? "Indexing paused" : ix.current ? ix.current.name : "Getting ready…";
     const bits = [`${pct}%`];
     if (ix.current && ix.current.eta != null && !ix.paused) bits.push(`~${fmtDur(ix.current.eta)} left`);
     if (ix.pending) bits.push(`${ix.pending} waiting`);
-    $("#jobInfo").textContent = bits.join(" · ");
+    $("#jobInfo").textContent = bits.join("  ·  ");
     fill($("#jobPause"), icon(ix.paused ? "play" : "pause"));
     $("#jobPause").title = ix.paused ? "Resume" : "Pause";
     $("#jobPause").setAttribute("aria-label", ix.paused ? "Resume indexing" : "Pause indexing");
@@ -256,15 +267,16 @@ function startPreview(el, videoId, ts) {
 }
 const isSaved = (videoId, ts) => state.saved.some((s) => s.video_id === videoId && Math.abs(s.ts_ms - ts) < 1000);
 
-/** One film frame: thumbnail, timecode, and a colour-coded match percentage. */
-function frame(o) {
-  const f = h(o.onClick ? "button" : "div", { class: "frame" + (o.cls ? " " + o.cls : "") + (o.missing ? " missing" : "") + (o.thumb ? "" : " ph"), type: o.onClick ? "button" : null, disabled: o.missing || null,
-      "aria-label": o.aria || null, style: o.pct != null ? { "--pc": pcColor(o.pct) } : null },
-    o.thumb ? img(thumbUrl(o.thumb.id, o.thumb.ts, o.thumb.w || 480)) : icon(o.icon || "film"),
-    o.starred ? h("span", { class: "star" }, icon("star")) : null,
-    o.pct != null ? h("span", { class: "pc" }, Math.round(o.pct), h("small", {}, "%")) : null,
+/** A frame of footage. With a score it shows a big colour-coded numeral. */
+function frm(o) {
+  const hasScore = o.pct != null;
+  const f = h(o.onClick ? "button" : "div", { class: "frm" + (o.cls ? " " + o.cls : "") + (o.missing ? " missing" : "") + (o.thumb ? "" : " ph"), type: o.onClick ? "button" : null, disabled: o.missing || null,
+      "aria-label": o.aria || null, style: hasScore ? { "--pc": pcColor(o.pct) } : null },
+    o.thumb ? img(thumbUrl(o.thumb.id, o.thumb.ts, o.thumb.w || 560)) : icon(o.icon || "film"),
     o.tc ? h("span", { class: "tc" }, o.tc) : null,
-    o.pct != null ? h("span", { class: "expo", style: { width: Math.round(o.pct) + "%" } }) : null,
+    o.starred ? h("span", { class: "star" }, icon("star")) : null,
+    hasScore ? h("span", { class: "nm" }, h("span", { class: "n", "data-to": Math.round(o.pct) }, String(Math.round(o.pct)), h("sup", {}, "%")), o.verdict ? h("span", { class: "v" }, o.verdict) : null) : null,
+    hasScore ? h("span", { class: "expo", style: { width: Math.round(o.pct) + "%" } }) : null,
     o.thumb && o.onClick && !o.missing ? h("span", { class: "playb" }, icon("play")) : null);
   if (o.onClick && !o.missing) {
     f.addEventListener("click", o.onClick);
@@ -273,18 +285,18 @@ function frame(o) {
   return f;
 }
 
-/** Bars that show how strongly a video matches along its timeline, coloured by strength. */
-function heatBars(container, heat, animate = true) {
+/** A row of bars: how strongly a video matches along its length, coloured by strength. */
+function heatBars(container, heat) {
   const hs = heat || [];
   if (!hs.length) { fill(container); return; }
-  const lo = Math.min(...hs), hi = Math.max(...hs), span = Math.max(1, hi - lo);
+  const lo = Math.min(...hs), hi = Math.max(...hs), sp = Math.max(1, hi - lo);
   fill(container, hs.map((p, i) => {
-    const rel = Math.pow((p - lo) / span, 1.4);
-    return h("i", { style: { height: `${Math.round(10 + 90 * rel)}%`, background: p < 22 ? "var(--soft)" : pcColor(p), animationDelay: animate ? `${Math.min(i * 8, 500)}ms` : null } });
+    const rel = Math.pow((p - lo) / sp, 1.35);
+    return h("i", { style: { height: `${Math.round(8 + 92 * rel)}%`, background: p < 22 ? "var(--line2)" : pcColor(p), opacity: p < 22 ? 1 : (0.5 + 0.5 * rel).toFixed(2), animationDelay: `${Math.min(i * 9, 600)}ms` } });
   }));
 }
-const emptyState = (ic, title, text, action) => h("div", { class: "empty" }, h("div", { class: "empty-art" }, icon(ic)), h("h2", {}, title), h("p", { class: "muted" }, text), action || null);
-const developing = () => h("div", { class: "develop" }, h("div", { class: "film" }, [0, 1, 2, 3, 4].map(() => h("i"))), h("p", {}, "Developing the film…"));
+const emptyState = (title, text, action) => h("div", { class: "empty" }, h("h2", { class: "serif" }, title), h("p", { class: "muted" }, text), action || null);
+const scanning = (label = "Scanning the footage") => h("div", { class: "scan" }, h("div", { class: "box" }), h("p", {}, label + "…"));
 
 /* ═════════════════════════════ search box ═════════════════════════════ */
 const historyList = () => store.get("history", []);
@@ -305,7 +317,7 @@ function showSuggestions() {
   SG.items = buildSuggestions(); SG.i = -1;
   if (!SG.items.length || document.activeElement !== $("#q")) { box.hidden = true; $("#q").setAttribute("aria-expanded", "false"); return; }
   fill(box, SG.items.map((it, k) => h("button", { type: "button", role: "option", "data-k": k, onmousedown: (e) => { e.preventDefault(); pickSuggestion(k); } },
-    it.thumb ? img(it.thumb) : icon(it.icon), h("span", {}, it.label), it.hint ? h("small", {}, it.hint) : null)));
+    it.thumb ? img(it.thumb) : icon(it.icon), span(it.label), it.hint ? h("small", {}, it.hint) : null)));
   box.hidden = false; $("#q").setAttribute("aria-expanded", "true");
 }
 function markSuggestion(i) { SG.i = i; $$("#sugg button").forEach((b, k) => b.classList.toggle("on", k === i)); }
@@ -330,11 +342,11 @@ const instant = debounce(() => {
   if (prefs.instant && state.view === "search" && state.results && q.length >= 3 && state.status && state.status.ready) doSearch(q, false);
 }, 340);
 $("#brand").addEventListener("click", (e) => { e.preventDefault(); clearSearch(); go("search"); });
-$$(".dock a[data-tab=search]").forEach((a) => a.addEventListener("click", () => clearSearch()));
+$$(".tabs a[data-tab=search]").forEach((a) => a.addEventListener("click", () => clearSearch()));
 
 /* a typewriter that suggests things to look for */
 let twTimer = null, twIndex = 0;
-const TW_DEFAULT = ["a red car at night", "two people laughing", "a dog running on a beach", "someone writing on a whiteboard", "fireworks over water", "a dragon", "a crowd cheering"];
+const TW_DEFAULT = ["a red car at night", "two people laughing", "a dog running on a beach", "someone writing on a whiteboard", "fireworks over water", "a close-up of a face", "a crowd cheering"];
 function typewriterLines() { const cs = (state.concepts || []).map((c) => c.query); return cs.length ? cs : TW_DEFAULT; }
 function stopTypewriter() { clearTimeout(twTimer); twTimer = null; $("#q").placeholder = "Describe a scene…"; }
 function startTypewriter() {
@@ -346,10 +358,10 @@ function startTypewriter() {
   const type = () => {
     if (!document.body.classList.contains("is-home") || q.value || document.activeElement === q) { twTimer = null; q.placeholder = "Describe a scene…"; return; }
     q.placeholder = line.slice(0, ++n) + (n < line.length ? "▍" : "");
-    if (n < line.length) twTimer = setTimeout(type, 55 + Math.random() * 40);
-    else twTimer = setTimeout(() => { twTimer = null; startTypewriter(); }, 2200);
+    if (n < line.length) twTimer = setTimeout(type, 50 + Math.random() * 40);
+    else twTimer = setTimeout(() => { twTimer = null; startTypewriter(); }, 2300);
   };
-  twTimer = setTimeout(type, 400);
+  twTimer = setTimeout(type, 500);
 }
 
 /* ═════════════════════════════ seek: home ═════════════════════════════ */
@@ -365,36 +377,36 @@ function renderSearchPage() {
   $("#home").hidden = searching; $("#found").hidden = !searching;
   if (searching) { stopTypewriter(); renderResults(); return; }
   const st = state.status;
-  const ready = state.videos.filter((v) => v.status === "ready").sort((a, b) => b.added - a.added);
+  const ready = state.videos.filter((v) => v.status === "ready");
   const cs = state.concepts || [];
-  const stickers = cs.length ? cs.slice(0, 12).map((c, i) => h("button", { class: "sticker", type: "button", style: { "--c": `var(${COLORS[i % COLORS.length]})`, animationDelay: `${i * 45}ms` }, onclick: () => runSearch(c.query) },
-    img(thumbUrl(c.cover.video_id, c.cover.ts_ms, 100)), c.label))
-    : TW_DEFAULT.slice(0, 6).map((t, i) => h("button", { class: "sticker plain", type: "button", style: { "--c": `var(${COLORS[i % COLORS.length]})`, animationDelay: `${i * 45}ms` }, onclick: () => runSearch(t) }, t));
-  fill($("#topicChips"), stickers);
-  $("#powerTip").hidden = false;
+  fill($("#topicChips"), h("span", { class: "lbl" }, "Try"),
+    cs.length ? cs.slice(0, 8).map((c, i) => h("button", { class: "pill", type: "button", style: { animationDelay: `${300 + i * 55}ms` }, onclick: () => runSearch(c.query) }, img(thumbUrl(c.cover.video_id, c.cover.ts_ms, 90)), c.label))
+      : TW_DEFAULT.slice(0, 5).map((t, i) => h("button", { class: "pill plain", type: "button", style: { animationDelay: `${300 + i * 55}ms` }, onclick: () => runSearch(t) }, t)));
+  renderRibbon(ready);
   const s = st && st.stats;
   $("#ticker").hidden = !(s && s.videos);
-  if (s && s.videos) {
-    const items = [plural(s.videos, "video"), `${fmtDur(s.seconds)} of footage`, plural(s.frames, "moment") + " indexed", "100% local", "nothing uploaded", "free & open source"];
-    const run = [...items, ...items].map((t) => h("span", {}, t + "  ✦"));
-    fill($("#ticker"), h("div", {}, run, run.map((n) => n.cloneNode(true))));
-  }
-  $("#homeHead").hidden = !ready.length;
-  fill($("#homeGrid"), ready.slice(0, 24).map((v, i) => reelCard(v, i)));
+  if (s && s.videos) fill($("#ticker"), [[s.videos, s.videos === 1 ? "film" : "films"], [fmtDur(s.seconds), "of footage"], [s.frames.toLocaleString(), "moments indexed"], ["0", "bytes uploaded"]].map(([a, b]) => span(h("b", {}, a), b)));
   $("#homeEmpty").hidden = !(!ready.length && !(st && (st.indexing.current || st.indexing.pending)) && st && st.ready);
   if (st && st.ready && st.stats.videos && !state.concepts && !state.conceptsLoading) loadConcepts();
   startTypewriter();
 }
 
-function reelCard(v, i) {
-  const playable = v.exists && v.frames > 0;
-  const open = () => openWatch(wholeCtx(v));
-  const card = h("article", { class: "reelcard" + (playable ? "" : " missing"), style: { animationDelay: `${Math.min(i, 10) * 50}ms` } },
-    h("div", { class: "film" }, frame({ thumb: playable ? { id: v.id, ts: v.poster_ms } : null, icon: "alert", tc: v.duration ? fmtTime(v.duration * 1000) : "", missing: !playable, onClick: playable ? open : null, aria: `Play ${v.name}` })),
-    h("div", { class: "reelcard-body" }, h("div", { class: "reelcard-name" }, v.name),
-      h("div", { class: "reelcard-meta" }, h("span", {}, plural(v.frames, "moment")), v.added ? h("span", {}, ago(v.added)) : null)));
-  if (playable) card.addEventListener("click", (e) => { if (!e.target.closest(".frame")) open(); });
-  return card;
+/** Two slow rivers of frames from the user's own footage. */
+let ribbonKey = "";
+function renderRibbon(ready) {
+  const box = $("#ribbon");
+  box.hidden = !ready.length;
+  if (!ready.length) { ribbonKey = ""; return; }
+  const key = ready.map((v) => v.id).join(",");
+  if (key === ribbonKey) return;
+  ribbonKey = key;
+  const frames = [];
+  const per = Math.max(4, Math.min(8, Math.ceil(28 / ready.length)));
+  ready.slice(0, 8).forEach((v, vi) => { for (let k = 0; k < per; k++) frames.push({ id: v.id, ts: ((k + 0.5 + (vi % 2) * 0.25) / per) * v.duration * 1000 }); });
+  for (let i = frames.length - 1; i > 0; i--) { const j = (i * 7919 + 13) % (i + 1); [frames[i], frames[j]] = [frames[j], frames[i]]; }   // a fixed shuffle, so reloads look the same
+  const a = frames.filter((_, i) => i % 2 === 0), b = frames.filter((_, i) => i % 2 === 1);
+  const row = (list) => [...list, ...list].map((f) => h("div", { class: "rf" }, img(thumbUrl(f.id, f.ts, 420))));
+  fill($("#ribA"), row(a)); fill($("#ribB"), row(b.length ? b : a));
 }
 
 function renderScopes() {
@@ -423,8 +435,8 @@ function runSearch(q) {
 
 function showLoading() {
   $("#home").hidden = true; $("#found").hidden = false; placeSearch();
-  if (!state.results || state.results.pending) fill($("#results"), developing());
-  else $("#results").style.opacity = ".45";
+  if (!state.results || state.results.pending) fill($("#results"), scanning());
+  else $("#results").style.opacity = ".4";
 }
 
 async function doSearch(q, record) {
@@ -454,7 +466,7 @@ function renderTerms(pos, neg) {
   const box = $("#terms");
   const show = (pos && pos.length > 1) || (neg && neg.length);
   box.hidden = !show;
-  if (show) fill(box, h("span", {}, "looking for"), pos.map((t) => h("span", { class: "term" }, t)), neg.length ? [h("span", {}, "without"), neg.map((t) => h("span", { class: "term neg" }, t))] : null);
+  if (show) fill(box, span("looking for"), pos.map((t) => h("span", { class: "term" }, t)), neg.length ? [span("without"), neg.map((t) => h("span", { class: "term neg" }, t))] : null);
 }
 
 async function imageSearch(file) {
@@ -503,20 +515,19 @@ function renderResults() {
   el.style.opacity = "";
   $$("#matchChips button").forEach((b) => b.classList.toggle("on", +b.dataset.v === state.minMatch));
   $$("#viewMode button").forEach((b) => b.classList.toggle("on", b.dataset.v === prefs.view));
-  const kick = { text: "Seeking", image: "Frames that look like", similar: "Moments like" }[R.kind];
-  $("#resKicker").textContent = kick;
-  fill($("#resTitle"), R.kind === "text" ? [h("span", { class: "qt" }, "“"), R.label, h("span", { class: "qt" }, "”")] : R.label);
+  $("#resKicker").textContent = { text: "Seeking", image: "Frames that look like", similar: "Moments like" }[R.kind];
+  fill($("#resTitle"), R.kind === "text" ? [h("span", { class: "q" }, "“"), R.label, h("span", { class: "q" }, "”")] : R.label);
   if (R.pending) { $("#summary").textContent = ""; return; }
   const minPct = R.kind === "text" ? 0 : state.minMatch;      // text searches are filtered by the server already
   const rs = sortedResults().map((r) => ({ ...r, moments: r.moments.filter((m) => m.score >= minPct) })).filter((r) => r.moments.length);
   $("#exportBtn").hidden = !rs.length;
   const total = rs.reduce((n, r) => n + r.moments.length, 0);
-  fill($("#summary"), rs.length ? [h("b", {}, plural(total, "moment")), `  ·  ${plural(rs.length, "video")}`, R.took_ms != null ? `  ·  ${R.took_ms} ms` : ""] : null);
+  fill($("#summary"), rs.length ? [h("b", {}, plural(total, "moment")), `   ${plural(rs.length, "video")}`, R.took_ms != null ? `   ${R.took_ms} ms` : ""] : null);
   if (!rs.length) {
     const hasVideos = state.status && state.status.stats.videos;
-    fill(el, emptyState("seek", "Nothing in frame",
+    fill(el, emptyState("Nothing in frame.",
       !hasVideos ? "There are no indexed videos yet." : state.minMatch ? "Nothing is that strong a match. Show any match, or describe it differently." : "Try describing it differently, or search all footage.",
-      state.minMatch ? h("button", { class: "btn pop", type: "button", onclick: () => setMinMatch(0) }, "Show any match") : null));
+      state.minMatch ? h("button", { class: "btn solid", type: "button", onclick: () => setMinMatch(0) }, "Show any match") : null));
     return;
   }
   if (prefs.view === "moments") {
@@ -524,32 +535,37 @@ function renderResults() {
     if ($("#sortBy").value === "score") all.sort((a, b) => b.m.score - a.m.score);
     fill(el, h("div", { class: "gcards" }, all.map(({ r, m }, i) => {
       const open = () => openWatch(resultCtx(r, r.moments.findIndex((x) => x.ts_ms === m.ts_ms)));
-      return h("div", { class: "gcard", style: { animationDelay: `${Math.min(i, 12) * 30}ms`, "--pc": pcColor(m.score) } },
-        frame({ thumb: { id: r.video_id, ts: m.ts_ms }, tc: fmtTime(m.ts_ms), pct: m.score, starred: isSaved(r.video_id, m.ts_ms), onClick: open, aria: `Play ${r.name} at ${fmtTime(m.ts_ms)}` }),
-        h("div", { class: "gname", onclick: open }, r.name),
-        h("div", { class: "gmeta" }, h("span", { class: "pct" }, `${Math.round(m.score)}%`), h("span", {}, verdict(m.score)), h("span", {}, fmtDur(r.duration))));
+      return h("div", { class: "gcard", style: { animationDelay: `${Math.min(i, 12) * 40}ms`, "--pc": pcColor(m.score) } },
+        frm({ thumb: { id: r.video_id, ts: m.ts_ms }, tc: fmtTime(m.ts_ms), pct: m.score, verdict: verdict(m.score), starred: isSaved(r.video_id, m.ts_ms), onClick: open, aria: `Play ${r.name} at ${fmtTime(m.ts_ms)}` }),
+        h("div", { class: "gname", onclick: open }, r.name), h("div", { class: "gmeta" }, span(fmtDur(r.duration)), span(fmtTime(m.ts_ms))));
     })));
-  } else fill(el, rs.map(sheet));
+  } else fill(el, rs.map((r, i) => resultRow(r, i, rs.length)));
+  $$("#results .big-frm .n").forEach(countUp);
 }
 
-function sheet(r, i) {
+/** One video as an editorial spread: the best frame large, its takes tabulated beside it. */
+function resultRow(r, i, count) {
   const best = r.moments[0];
   const open = (k) => openWatch(resultCtx(r, k));
-  const bar = h("div", { class: "minibar", title: "Where it matches in the video. Click to jump there." });
+  const bar = h("div", { class: "heat", title: "Where it matches in the video. Click to jump there." });
   heatBars(bar, r.heat);
   bar.addEventListener("click", (e) => {
     const frac = (e.clientX - bar.getBoundingClientRect().left) / bar.clientWidth;
     openWatch({ ...resultCtx(r, 0), startAt: frac * r.duration * 1000, startSeek: true });
   });
-  return h("article", { class: "sheet", style: { animationDelay: `${Math.min(i, 8) * 70}ms`, "--pc": pcColor(best.score), "--p": Math.round(best.score) } },
-    h("div", { class: "sheet-head" },
-      h("div", { class: "gauge", title: `${Math.round(best.score)}% best match` }, h("b", {}, Math.round(best.score), h("small", {}, "%"))),
-      h("div", { class: "sheet-id" }, h("div", { class: "sheet-name", onclick: () => open(0) }, r.name),
-        h("div", { class: "sheet-meta" }, h("span", { class: "verd" }, verdict(best.score)), h("span", {}, fmtDur(r.duration)), h("span", {}, plural(r.moments.length, "moment")))),
-      h("button", { class: "btn small", type: "button", onclick: () => open(0) }, "Open", icon("arrow"))),
-    h("div", { class: "film" }, h("div", { class: "frames" }, r.moments.map((m, k) =>
-      frame({ thumb: { id: r.video_id, ts: m.ts_ms }, tc: fmtTime(m.ts_ms), pct: m.score, starred: isSaved(r.video_id, m.ts_ms), cls: k === 0 ? "best" : "", onClick: () => open(k), aria: `Play ${r.name} at ${fmtTime(m.ts_ms)}` })))),
-    h("div", { class: "heat" }, h("div", { class: "heat-label" }, h("span", {}, "match along the film"), h("span", {}, fmtTime(r.duration * 1000))), bar));
+  return h("article", { class: "rrow", style: { animationDelay: `${Math.min(i, 6) * 90}ms`, "--pc": pcColor(best.score) } },
+    h("div", { class: "rleft" },
+      frm({ thumb: { id: r.video_id, ts: best.ts_ms, w: 900 }, tc: fmtTime(best.ts_ms), pct: best.score, verdict: verdict(best.score), starred: isSaved(r.video_id, best.ts_ms), cls: "big-frm", onClick: () => open(0), aria: `Play ${r.name} at ${fmtTime(best.ts_ms)}` }),
+      r.moments.length > 1 ? h("div", { class: "minis" }, r.moments.slice(1).map((m, k) => frm({ thumb: { id: r.video_id, ts: m.ts_ms, w: 360 }, tc: fmtTime(m.ts_ms), pct: m.score, starred: isSaved(r.video_id, m.ts_ms), onClick: () => open(k + 1), aria: `Play ${r.name} at ${fmtTime(m.ts_ms)}` }))) : null),
+    h("div", { class: "rmeta" },
+      h("div", { class: "idx" }, `${pad(i + 1)} / ${pad(count)}`),
+      h("div", { class: "title", onclick: () => open(0) }, r.name),
+      h("div", { class: "facts" }, span(fmtDur(r.duration)), span(plural(r.moments.length, "take")), span(`added ${ago(r.added || 0)}`)),
+      h("div", { class: "verdict" }, `${verdict(best.score)} match`),
+      h("div", { class: "rtable" }, r.moments.map((m, k) => h("button", { class: "rt", type: "button", style: { "--pc": pcColor(m.score) }, onclick: () => open(k) },
+        span(fmtTime(m.ts_ms)), h("span", { class: "bar" }, h("i", { style: { width: Math.round(m.score) + "%" } })), h("span", { class: "p" }, Math.round(m.score) + "%")))),
+      h("div", { class: "track" }, h("div", { class: "track-l" }, span("match along the film"), span(fmtTime(r.duration * 1000))), bar),
+      h("button", { class: "open-link", type: "button", onclick: () => open(0) }, "Open in the screening room", icon("up-right"))));
 }
 
 function setMinMatch(v) {
@@ -575,7 +591,7 @@ $("#exportBtn").addEventListener("click", () => {
 });
 
 /* ═════════════════════════════ screening room ═════════════════════════════ */
-const P = { ctx: null, pending: null, i: 0, dur: 0, tab: "matches", more: null, info: null, token: 0 };
+const P = { ctx: null, pending: null, i: 0, dur: 0, tab: "matches", more: null, info: null, token: 0, uid: 0 };
 const pv = () => $("#pVideo");
 const watching = () => state.view === "watch";
 const wholeCtx = (v, startAt = 0) => ({ video_id: v.id, name: v.name, duration: v.duration, moments: [], heat: [], index: 0, startAt, startSeek: true, query: "" });
@@ -605,12 +621,12 @@ function startWatch(ctx) {
   $("#pQ").value = ctx.query || "";
   $$("#pSpeed button").forEach((b) => b.classList.toggle("on", b.dataset.v === "1"));
   v.playbackRate = 1;
-  renderWatchMeta(); renderTabs(); renderWatchSide(); renderReel();
+  renderWatchMeta(); renderTabs(); renderWatchSide(); renderTimeline(); setAmbient();
   api(`/api/videos/${ctx.video_id}`).then((info) => { if (P.token === token) { P.info = info; renderWatchMeta(); } }).catch(() => {});
   v.src = `/api/video/${ctx.video_id}`;
   v.onloadedmetadata = () => {
     if (P.token !== token) return;
-    if (!P.dur && v.duration) { P.dur = v.duration * 1000; renderReel(); }
+    if (!P.dur && v.duration) { P.dur = v.duration * 1000; renderTimeline(); }
     const start = ctx.startSeek ? ctx.startAt || 0 : ctx.moments[P.i] ? ctx.moments[P.i].ts_ms - 500 : 0;
     v.currentTime = Math.max(0, start / 1000);
     v.play().catch(() => {});
@@ -627,6 +643,11 @@ function stopWatch() {
   document.title = "Sceneseek";
 }
 $("#wBack").addEventListener("click", goBack);
+/** The glow behind the screen takes the colour of the take you are on. */
+function setAmbient() {
+  const m = P.ctx && P.ctx.moments[P.i];
+  $(".screen").style.setProperty("--amb", m && m.score != null ? `color-mix(in srgb, ${pcColor(m.score)} 60%, transparent)` : "transparent");
+}
 
 function renderWatchMeta() {
   const c = P.ctx, i = P.info;
@@ -634,18 +655,18 @@ function renderWatchMeta() {
   if (i && i.width) bits.push(`${i.width}×${i.height}`);
   if (i && i.size) bits.push(fmtSize(i.size));
   if (c.moments.some((m) => m.score != null)) bits.push(plural(c.moments.length, "take"));
-  $("#pMeta").textContent = bits.join("  ·  ");
+  $("#pMeta").textContent = bits.join("   ·   ");
   const kept = state.saved.filter((s) => s.video_id === c.video_id).length;
-  fill($("#pInfo"), h("div", {}, h("b", {}, i ? plural(i.frames, "moment") : "…"), " indexed in this film", kept ? `  ·  ${kept} kept on your reel` : ""), i ? h("div", {}, i.path) : null);
+  fill($("#pInfo"), h("div", {}, h("b", {}, i ? plural(i.frames, "moment") : "…"), " indexed in this film", kept ? `   ·   ${kept} on your reel` : ""), i ? h("div", {}, i.path) : null);
   updateSaveBtn();
 }
 
-/** A "take": a thumbnail, a big colour-coded percentage and a timecode. */
-function take({ videoId, ts, title, pct, sub, on, onClick }) {
-  return h("button", { class: "take" + (on ? " on" : ""), type: "button", style: pct != null ? { "--pc": pcColor(pct) } : null, onclick: onClick },
-    frame({ thumb: { id: videoId, ts, w: 320 }, tc: fmtTime(ts), pct: null }),
-    h("span", {}, pct != null ? h("div", { class: "take-big" }, Math.round(pct), h("small", {}, "%")) : null,
-      h("div", { class: title ? "take-note" : "take-t" }, title || fmtTime(ts)), h("div", { class: "take-s" }, sub)));
+/** One take: thumbnail, a big colour-coded numeral and a timecode. */
+function take({ videoId, ts, title, pct, sub, on, onClick, i = 0 }) {
+  return h("button", { class: "take" + (on ? " on" : ""), type: "button", style: { "--pc": pct != null ? pcColor(pct) : null, animationDelay: `${Math.min(i, 8) * 45}ms` }, onclick: onClick },
+    frm({ thumb: { id: videoId, ts, w: 360 }, tc: fmtTime(ts) }),
+    h("span", {}, pct != null ? h("div", { class: "n" }, String(Math.round(pct)), h("sup", {}, "%")) : null,
+      title ? h("div", { class: "note" }, title) : null, h("div", { class: "t" }, fmtTime(ts)), h("div", { class: "s" }, sub)));
 }
 function renderTabs() { $$("#wTabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === P.tab)); }
 function renderWatchSide() {
@@ -653,15 +674,15 @@ function renderWatchSide() {
   renderTabs();
   if (P.tab === "matches") {
     if (!c.moments.length) return fill(list, h("p", { class: "un-empty" }, c.query ? "No takes match that in this film. Try other words." : "Describe something above to find its takes in this film."));
-    fill(list, c.moments.map((m, k) => take({ videoId: c.video_id, ts: m.ts_ms, pct: m.score, sub: m.score != null ? verdict(m.score) + " match" : "Take", on: k === P.i, onClick: () => seekMoment(k) })));
+    fill(list, c.moments.map((m, k) => take({ videoId: c.video_id, ts: m.ts_ms, pct: m.score, sub: m.score != null ? verdict(m.score) + " match" : "Take", on: k === P.i, onClick: () => seekMoment(k), i: k })));
   } else if (P.tab === "saved") {
     const mine = state.saved.filter((s) => s.video_id === c.video_id).sort((a, b) => a.ts_ms - b.ts_ms);
     if (!mine.length) return fill(list, h("p", { class: "un-empty" }, "Nothing kept from this film yet. Press S to keep the current moment."));
-    fill(list, mine.map((s) => take({ videoId: c.video_id, ts: s.ts_ms, title: s.note || null, pct: null, sub: "Kept on your reel", onClick: () => { pv().currentTime = s.ts_ms / 1000; pv().play().catch(() => {}); } })));
+    fill(list, mine.map((s, k) => take({ videoId: c.video_id, ts: s.ts_ms, title: s.note || null, pct: null, sub: "On your reel", onClick: () => { pv().currentTime = s.ts_ms / 1000; pv().play().catch(() => {}); }, i: k })));
   } else {
-    if (!P.more) { fill(list, developing()); loadMore(); return; }
+    if (!P.more) { fill(list, scanning("Finding similar footage")); loadMore(); return; }
     if (!P.more.length) return fill(list, h("p", { class: "un-empty" }, "Nothing similar found in your other footage."));
-    fill(list, P.more.map((r) => { const m = r.moments[0]; return take({ videoId: r.video_id, ts: m.ts_ms, title: r.name, pct: m.score, sub: verdict(m.score) + " match", onClick: () => openWatch(resultCtx(r, 0)) }); }));
+    fill(list, P.more.map((r, k) => { const m = r.moments[0]; return take({ videoId: r.video_id, ts: m.ts_ms, title: r.name, pct: m.score, sub: verdict(m.score) + " match", onClick: () => openWatch(resultCtx(r, 0)), i: k }); }));
   }
 }
 async function loadMore() {
@@ -679,13 +700,41 @@ $("#wTabs").addEventListener("click", (e) => {
   renderWatchSide();
 });
 
-/** The film strip: real frames along the whole video, with match flags and a playhead. */
-function renderReel() {
-  const c = P.ctx, strip = $("#pStrip");
-  const width = $("#pTimeline").clientWidth || 800, dur = P.dur || (c.duration || 0) * 1000;
-  const n = Math.max(4, Math.min(14, Math.round(width / 112)));
-  fill(strip, dur ? Array.from({ length: n }, (_, k) => img(thumbUrl(c.video_id, ((k + 0.5) / n) * dur, 200))) : []);
-  heatBars($("#pHeat"), c.heat, false);
+/** A smooth path through the points (Catmull-Rom converted to Béziers). */
+function smoothPath(pts) {
+  if (pts.length < 2) return "";
+  let d = `M${pts[0][0].toFixed(2)},${pts[0][1].toFixed(2)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += `C${c1[0].toFixed(2)},${c1[1].toFixed(2)} ${c2[0].toFixed(2)},${c2[1].toFixed(2)} ${p2[0].toFixed(2)},${p2[1].toFixed(2)}`;
+  }
+  return d;
+}
+/** The match curve: how strongly each moment of the film matches, drawn in spectrum colour. */
+function buildChart(heat) {
+  const ns = "http://www.w3.org/2000/svg", id = ++P.uid, n = heat.length;
+  const lo = Math.min(...heat), hi = Math.max(...heat), sp = Math.max(1, hi - lo);
+  const pts = heat.map((p, i) => [(i / (n - 1)) * 100, 36 - Math.pow((p - lo) / sp, 1.15) * 30 - 2]);
+  const line = smoothPath(pts), area = `${line}L100,40L0,40Z`;
+  const stops = heat.map((p, i) => `<stop offset="${((i / (n - 1)) * 100).toFixed(1)}%" stop-color="${pcColor(p)}"/>`).join("");
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 100 40"); svg.setAttribute("preserveAspectRatio", "none");
+  svg.innerHTML = `<defs><linearGradient id="cg${id}" x1="0" x2="1" y1="0" y2="0">${stops}</linearGradient>
+    <linearGradient id="cf${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <mask id="cm${id}"><rect width="100" height="40" fill="url(#cf${id})"/></mask></defs>
+    <g stroke="currentColor" stroke-opacity=".09" stroke-width=".25" vector-effect="non-scaling-stroke"><path d="M0 12H100M0 24H100" vector-effect="non-scaling-stroke"/></g>
+    <path d="${area}" fill="url(#cg${id})" mask="url(#cm${id})" opacity=".55"/>
+    <path d="${line}" fill="none" stroke="url(#cg${id})" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"/>`;
+  return svg;
+}
+/** The timeline: the curve above a strip of real frames, with a flag at every take. */
+function renderTimeline() {
+  const c = P.ctx, strip = $("#pStrip"), chart = $("#pChart");
+  const width = $("#pTimeline").clientWidth || 900, dur = P.dur || (c.duration || 0) * 1000;
+  const n = Math.max(4, Math.min(18, Math.round(width / 118)));
+  fill(strip, dur ? Array.from({ length: n }, (_, k) => img(thumbUrl(c.video_id, ((k + 0.5) / n) * dur, 220))) : []);
+  fill(chart, c.heat && c.heat.length > 3 ? buildChart(c.heat) : h("div", { class: "hint mono", style: { position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "var(--faint)", fontSize: ".7rem", textTransform: "uppercase", letterSpacing: ".14em" } }, "Seek inside this video to see where it matches"));
   const d = dur || 1;
   fill($("#pMarks"), c.moments.map((m, k) => (m.score == null ? null : (() => {
     const b = h("b", { style: { left: `${Math.min(97, Math.max(3, (m.ts_ms / d) * 100))}%`, "--pc": pcColor(m.score) }, title: `${fmtTime(m.ts_ms)} · ${Math.round(m.score)}%`, class: k === P.i ? "on" : "" }, `${Math.round(m.score)}%`);
@@ -694,7 +743,7 @@ function renderReel() {
     return b;
   })())));
 }
-addEventListener("resize", debounce(() => { if (watching() && P.ctx) renderReel(); }, 250));
+addEventListener("resize", debounce(() => { if (watching() && P.ctx) renderTimeline(); }, 250));
 function seekMoment(k) {
   const m = P.ctx.moments[k];
   if (!m) return;
@@ -703,7 +752,7 @@ function seekMoment(k) {
   pv().play().catch(() => {});
   if (P.tab === "matches") $$("#wList .take").forEach((el, j) => el.classList.toggle("on", j === k));
   $$("#pMarks b").forEach((el, j) => el.classList.toggle("on", j === k));
-  updateSaveBtn();
+  setAmbient(); updateSaveBtn();
 }
 function onTime() {
   const v = pv(), now = v.currentTime * 1000, dur = P.dur || v.duration * 1000 || 1;
@@ -777,7 +826,7 @@ $("#pSearch").addEventListener("submit", async (e) => {
     const hit = r.results[0];
     P.ctx.query = q; P.ctx.moments = hit ? hit.moments : []; P.ctx.heat = hit ? hit.heat : [];
     P.i = 0; P.tab = "matches";
-    renderWatchMeta(); renderWatchSide(); renderReel();
+    renderWatchMeta(); renderWatchSide(); renderTimeline();
     if (hit) seekMoment(0);
   } catch (err) { fail(err); }
 });
@@ -792,10 +841,27 @@ async function loadConcepts() {
     return r;
   } catch { return null; } finally { state.conceptsLoading = false; }
 }
-function tile(c, i) {
-  return h("button", { class: "tile", type: "button", style: { animationDelay: `${Math.min(i, 14) * 40}ms` }, onclick: () => runSearch(c.query) },
-    img(thumbUrl(c.cover.video_id, c.cover.ts_ms, 640)), h("span", { class: "tc2" }, `${plural(c.frames, "moment")}`),
-    h("span", { class: "tl" }, h("span", { class: "tn" }, c.label)));
+/* the frame that follows your cursor over the topic index */
+const CP = { el: $("#cursorPrev"), img: $("#cursorPrev img"), x: 0, y: 0, tx: 0, ty: 0, raf: 0 };
+function cpLoop() {
+  CP.x += (CP.tx - CP.x) * 0.16; CP.y += (CP.ty - CP.y) * 0.16;
+  const vw = innerWidth, vh = innerHeight, w = 340, hgt = 191;
+  const px = Math.min(vw - w - 20, CP.tx + 36), py = Math.max(20, Math.min(vh - hgt - 20, CP.ty - hgt / 2));
+  CP.el.style.transform = `translate3d(${CP.x + (px - CP.tx)}px, ${CP.y + (py - CP.ty)}px, 0) rotate(${Math.max(-6, Math.min(6, (CP.tx - CP.x) * 0.05))}deg)`;
+  CP.raf = CP.el.classList.contains("on") ? requestAnimationFrame(cpLoop) : 0;
+}
+function topicRow(c, i) {
+  const row = h("button", { class: "ix", type: "button", style: { animationDelay: `${Math.min(i, 16) * 45}ms` }, onclick: () => { CP.el.classList.remove("on"); runSearch(c.query); } },
+    span(h("span", { class: "no" }, pad(i + 1))), h("span", { class: "nm" }, c.label), h("span", { class: "ct" }, `${plural(c.frames, "moment")} · ${plural(c.videos, "film")}`), h("span", { class: "go" }, icon("up-right")));
+  row.addEventListener("mouseenter", (e) => {
+    if (matchMedia("(pointer: coarse)").matches) return;
+    CP.img.src = thumbUrl(c.cover.video_id, c.cover.ts_ms, 680);
+    if (!CP.el.classList.contains("on")) { CP.x = CP.tx = e.clientX; CP.y = CP.ty = e.clientY; }
+    CP.el.classList.add("on"); if (!CP.raf) CP.raf = requestAnimationFrame(cpLoop);
+  });
+  row.addEventListener("mousemove", (e) => { CP.tx = e.clientX; CP.ty = e.clientY; });
+  row.addEventListener("mouseleave", () => CP.el.classList.remove("on"));
+  return row;
 }
 async function loadExplore() {
   const st = state.status;
@@ -803,15 +869,15 @@ async function loadExplore() {
   if (!st.stats.videos) { fill($("#concepts")); fill($("#stats")); $("#exploreEmpty").hidden = false; return; }
   $("#exploreEmpty").hidden = true;
   renderStats(st.stats);
-  if (!state.concepts) fill($("#concepts"), developing()); else fill($("#concepts"), state.concepts.map(tile));
+  if (!state.concepts) fill($("#concepts"), scanning("Reading your footage")); else fill($("#concepts"), state.concepts.map(topicRow));
   const r = await loadConcepts();
   if (!r || state.view !== "explore") return;
   renderStats(r.stats);
-  fill($("#concepts"), r.concepts.length ? r.concepts.map(tile) : h("p", { class: "muted" }, "Not enough footage to find topics yet. Add more videos."));
+  fill($("#concepts"), r.concepts.length ? r.concepts.map(topicRow) : h("p", { class: "muted", style: { padding: "30px 0" } }, "Not enough footage to find topics yet. Add more videos."));
 }
 function renderStats(s) {
-  const t = (v, l) => h("div", { class: "stat" }, h("b", {}, v), h("span", {}, l));
-  fill($("#stats"), t(s.videos.toLocaleString(), s.videos === 1 ? "video" : "videos"), t(fmtDur(s.seconds), "of footage"), t(s.frames.toLocaleString(), "moments"), t(state.saved.length.toLocaleString(), "on your reel"));
+  const t = (v, l) => h("div", { class: "stat" }, h("b", {}, v), span(l));
+  fill($("#stats"), t(s.videos.toLocaleString(), s.videos === 1 ? "film" : "films"), t(fmtDur(s.seconds), "of footage"), t(s.frames.toLocaleString(), "moments"), t(state.saved.length.toLocaleString(), "on your reel"));
 }
 
 /* ═════════════════════════════ reel (saved) ═════════════════════════════ */
@@ -828,7 +894,6 @@ function openSaved(s) {
   openWatch({ video_id: s.video_id, name: s.name, duration: s.duration, heat: [], moments: same.map((x) => ({ ts_ms: x.ts_ms })), index: same.indexOf(s), query: "" });
 }
 const CLIP_BEFORE = 1000, CLIP_AFTER = 5000;      // each kept moment becomes a six second cut
-const pad = (n, w = 2) => String(n).padStart(w, "0");
 function timecode(ms, fps) {
   const f = Math.max(1, Math.round(fps || 25));
   const total = Math.round((ms / 1000) * f);
@@ -848,23 +913,27 @@ function buildEdl(items) {
   });
   return lines.join("\r\n");
 }
+const CUT_COLORS = ["#ffd60a", "#ff9f0a", "#2ee6c1", "#a6f04d", "#5ac8fa", "#bf5af2", "#ff3b30"];
 function renderSaved() {
   const items = state.saved;
   $("#savedEmpty").hidden = items.length > 0;
-  $("#reelActions").hidden = !items.length;
-  const videos = new Set(items.map((s) => s.video_id)).size;
-  $("#reelMeta").textContent = items.length ? `${plural(items.length, "cut")} from ${plural(videos, "video")} · about ${fmtDur(items.length * (CLIP_BEFORE + CLIP_AFTER) / 1000)} on the timeline` : "";
+  $("#reelActions").hidden = !items.length; $("#sequence").hidden = !items.length;
+  const videos = new Set(items.map((s) => s.video_id)).size, total = items.length * (CLIP_BEFORE + CLIP_AFTER);
+  $("#reelMeta").textContent = items.length ? `${plural(items.length, "cut")} from ${plural(videos, "film")}   ·   ${timecode(3600 * 1000, 25)} → ${timecode(3600 * 1000 + total, 25)}` : "";
+  fill($("#sequence"), h("div", { class: "ruler" }, span("SEQUENCE 01"), span(`${fmtDur(total / 1000)} total`)),
+    h("div", { class: "blocks" }, items.map((s, i) => h("button", { class: "blk", type: "button", style: { "--c": CUT_COLORS[i % CUT_COLORS.length] }, title: s.name, onclick: () => { const el = $$(".cut")[i]; if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); } },
+      img(thumbUrl(s.video_id, s.ts_ms, 260)), h("i", { class: "c" }), h("b", {}, pad(i + 1) + "  " + fmtTime(s.ts_ms))))));
   fill($("#savedGrid"), items.map((s, i) => {
     const note = h("input", { type: "text", value: s.note || "", placeholder: "Add a note for the edit…", "aria-label": "Note", maxlength: 500 });
     note.addEventListener("change", () => api(`/api/saved/${s.id}`, { method: "PATCH", json: { note: note.value } }).then(() => { s.note = note.value; toast("Note saved", "ok"); }, fail));
     note.addEventListener("keydown", (e) => { if (e.key === "Enter") note.blur(); });
     const fps = s.fps || 25;
-    return h("div", { class: "cut", style: { animationDelay: `${Math.min(i, 12) * 45}ms` } },
+    return h("div", { class: "cut", style: { animationDelay: `${Math.min(i, 10) * 60}ms` } },
       h("span", { class: "no" }, pad(i + 1)),
-      frame({ thumb: { id: s.video_id, ts: s.ts_ms, w: 400 }, tc: fmtTime(s.ts_ms), missing: !s.available, onClick: s.available ? () => openSaved(s) : null, aria: `Play ${s.name} at ${fmtTime(s.ts_ms)}` }),
+      frm({ thumb: { id: s.video_id, ts: s.ts_ms, w: 600 }, tc: fmtTime(s.ts_ms), missing: !s.available, onClick: s.available ? () => openSaved(s) : null, aria: `Play ${s.name} at ${fmtTime(s.ts_ms)}` }),
       h("div", { class: "cut-body" },
         h("div", { class: "cut-name", title: s.path, onclick: () => s.available && openSaved(s) }, s.name),
-        h("div", { class: "cut-tc" }, h("span", {}, h("em", {}, "IN"), timecode(Math.max(0, s.ts_ms - CLIP_BEFORE), fps)), h("span", {}, h("em", {}, "OUT"), timecode(s.ts_ms + CLIP_AFTER, fps))),
+        h("div", { class: "cut-tc" }, span(h("em", {}, "IN"), timecode(Math.max(0, s.ts_ms - CLIP_BEFORE), fps)), span(h("em", {}, "OUT"), timecode(s.ts_ms + CLIP_AFTER, fps))),
         !s.available ? h("small", { class: "verr" }, "This video is no longer in your footage") : null, note),
       h("button", { class: "ibtn", type: "button", title: "Remove from reel", "aria-label": "Remove from reel", onclick: () => removeSaved(s) }, icon("trash")));
   }));
@@ -903,9 +972,9 @@ function renderLibrary() {
   const st = state.status;
   const folders = st ? st.settings.folders : [];
   const ready = state.videos.filter((v) => v.status === "ready");
-  $("#libSummary").textContent = ready.length ? `${plural(ready.length, "video")} · ${fmtDur(ready.reduce((a, v) => a + v.duration, 0))} · ${fmtSize(ready.reduce((a, v) => a + v.size, 0))}` : "nothing indexed yet";
+  $("#libSummary").textContent = ready.length ? `${plural(ready.length, "film")}   ·   ${fmtDur(ready.reduce((a, v) => a + v.duration, 0))}   ·   ${fmtSize(ready.reduce((a, v) => a + v.size, 0))}` : "nothing indexed yet";
   if (state.libFolder && !folders.includes(state.libFolder)) state.libFolder = "";
-  fill($("#folderChips"), folders.map((f, i) => h("span", { class: "sticker plain" + (state.libFolder === f ? " on" : ""), title: f, style: { "--c": `var(${COLORS[i % COLORS.length]})`, cursor: "pointer" }, onclick: () => { state.libFolder = state.libFolder === f ? "" : f; renderLibrary(); } },
+  fill($("#folderChips"), folders.map((f) => h("span", { class: "pill plain" + (state.libFolder === f ? " on" : ""), title: f, style: { cursor: "pointer" }, onclick: () => { state.libFolder = state.libFolder === f ? "" : f; renderLibrary(); } },
     icon("folder"), baseName(f), h("button", { class: "x", type: "button", "aria-label": "Stop watching " + f, title: "Stop watching this folder", onclick: (e) => { e.stopPropagation(); unwatch(f); } }, "×"))));
   const q = $("#libFilter").value.trim().toLowerCase(), sort = $("#libSort").value, stat = state.libStatus;
   const prefix = state.libFolder ? state.libFolder.replace(/[\\/]+$/, "").toLowerCase() : "";
@@ -920,15 +989,15 @@ function renderLibrary() {
   $("#libNone").hidden = !state.videos.length || list.length > 0;
   $$("#libStatus button").forEach((b) => b.classList.toggle("on", b.dataset.v === stat));
   $$("#libView button").forEach((b) => b.classList.toggle("on", b.dataset.v === prefs.libView));
-  $("#videoGrid").className = "clips" + (prefs.libView === "list" ? " list" : "");
-  fill($("#videoGrid"), list.map(clipCard));
+  $("#videoGrid").className = "clips " + (prefs.libView === "grid" ? "grid" : "list");
+  fill($("#videoGrid"), h("div", { class: "row head-row" }, span(""), span("Film"), span("Length"), span("Resolution"), span("Size"), span("Status"), span("")), list.map(clipRow));
 }
 $("#libFilter").addEventListener("input", renderLibrary);
 $("#libSort").addEventListener("change", renderLibrary);
 $("#libStatus").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { state.libStatus = b.dataset.v; renderLibrary(); } });
 $("#libView").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { setPref("libView", b.dataset.v); renderLibrary(); } });
 
-function clipCard(v, i) {
+function clipRow(v, i) {
   const playable = v.exists && v.frames > 0;
   const label = { ready: "Ready", queued: "Waiting", indexing: "Indexing", error: "Problem" }[v.status] || v.status;
   const cur = state.status && state.status.indexing.current;
@@ -938,15 +1007,14 @@ function clipCard(v, i) {
     v.exists ? h("button", { class: "ibtn sm", type: "button", title: "Show file", "aria-label": "Show " + v.name + " in its folder", onclick: () => api(`/api/videos/${v.id}/reveal`, { method: "POST" }).catch(fail) }, icon("folder")) : null,
     h("button", { class: "ibtn sm", type: "button", title: "Index again", "aria-label": "Index " + v.name + " again", onclick: () => api(`/api/videos/${v.id}/reindex`, { method: "POST" }).then(() => { toast("Queued again"); poll(); refreshVideos(true); }, fail) }, icon("refresh")),
     h("button", { class: "ibtn sm", type: "button", title: "Remove from footage", "aria-label": "Remove " + v.name, onclick: () => removeVideo(v) }, icon("trash")));
-  return h("article", { class: "clip", style: { animationDelay: `${Math.min(i, 10) * 40}ms` } },
-    h("div", { class: "film" }, frame({ thumb: playable ? { id: v.id, ts: v.poster_ms } : null, icon: v.status === "error" || !v.exists ? "alert" : "film", tc: v.duration ? fmtTime(v.duration * 1000) : "", missing: !playable, onClick: playable ? open : null, aria: `Play ${v.name}` })),
-    h("div", { class: "clip-body" },
-      h("div", { class: "clip-name", onclick: () => playable && open() }, v.name),
-      h("div", { class: "clip-meta" }, v.width ? h("span", {}, `${v.width}×${v.height}`) : null, h("span", {}, fmtSize(v.size)), v.status === "ready" ? h("span", {}, plural(v.frames, "moment")) : null),
-      v.error ? h("div", { class: "verr" }, v.error) : null,
-      !v.exists ? h("div", { class: "verr" }, "The file has moved or been deleted") : null,
+  return h("article", { class: "row", style: { animationDelay: `${Math.min(i, 10) * 40}ms` } },
+    frm({ thumb: playable ? { id: v.id, ts: v.poster_ms, w: 400 } : null, icon: v.status === "error" || !v.exists ? "alert" : "film", tc: v.duration ? fmtTime(v.duration * 1000) : "", missing: !playable, onClick: playable ? open : null, aria: `Play ${v.name}` }),
+    h("div", {}, h("div", { class: "nm2", onclick: () => playable && open() }, v.name),
+      v.error ? h("div", { class: "verr" }, v.error) : null, !v.exists ? h("div", { class: "verr" }, "The file has moved or been deleted") : null,
       v.status === "indexing" || v.status === "queued" ? h("div", { class: "vprog" }, h("i", { "data-prog": v.id, style: { width: pct + "%" } })) : null,
-      h("div", { class: "clip-foot" }, h("span", { class: `led ${v.status}`, "data-live": v.id }, label), acts)));
+      h("div", { class: "gm mono muted" }, span(fmtDur(v.duration)), v.width ? span(`${v.width}×${v.height}`) : null, span(fmtSize(v.size)))),
+    h("span", { class: "c dur" }, v.duration ? fmtTime(v.duration * 1000) : "–"), h("span", { class: "c res" }, v.width ? `${v.width}×${v.height}` : "–"), h("span", { class: "c sz" }, fmtSize(v.size)),
+    h("span", { class: "st" }, h("span", { class: `led ${v.status}`, "data-live": v.id }, label)), acts);
 }
 function updateLiveCards(st) {
   const cur = st.indexing.current;
@@ -1010,13 +1078,14 @@ addEventListener("drop", async (e) => {
 
 /* ═════════════════════════════ tune ═════════════════════════════ */
 const dedupeLabel = (v) => (v == 0 ? "Off" : v <= 0.3 ? "Low" : v <= 0.6 ? "Medium" : "High");
+const setFill = (input) => input.style.setProperty("--fill", `${((input.value - input.min) / (input.max - input.min)) * 100}%`);
 function renderSettings() {
   const st = state.status; if (!st) return;
   const c = st.settings;
   $("#pInstant").checked = prefs.instant; $("#pHover").checked = prefs.hover;
   $$("#pPer button").forEach((b) => b.classList.toggle("on", +b.dataset.v === prefs.per));
-  $("#sInterval").value = c.interval; $("#oInterval").textContent = `every ${c.interval} s`;
-  $("#sDedupe").value = c.dedupe; $("#oDedupe").textContent = dedupeLabel(c.dedupe);
+  $("#sInterval").value = c.interval; $("#oInterval").textContent = `every ${c.interval} s`; setFill($("#sInterval"));
+  $("#sDedupe").value = c.dedupe; $("#oDedupe").textContent = dedupeLabel(c.dedupe); setFill($("#sDedupe"));
   $$("#sSpeed button").forEach((b) => b.classList.toggle("on", b.dataset.v === c.speed));
   $$("#sQuality button").forEach((b) => b.classList.toggle("on", b.dataset.v === c.quality));
   $("#modelHelp").textContent = c.quality === "best" ? "You are using the full-precision model: most accurate, slower to index." : "You are using the small, fast model. Best is a little sharper; switching re-indexes your videos.";
@@ -1037,8 +1106,8 @@ const saveSetting = (change) => { clearTimeout(saveTimer); saveTimer = setTimeou
 $("#pInstant").addEventListener("change", (e) => setPref("instant", e.target.checked));
 $("#pHover").addEventListener("change", (e) => setPref("hover", e.target.checked));
 $("#pPer").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { setPref("per", +b.dataset.v); renderSettings(); } });
-$("#sInterval").addEventListener("input", (e) => { $("#oInterval").textContent = `every ${e.target.value} s`; saveSetting({ interval: +e.target.value }); });
-$("#sDedupe").addEventListener("input", (e) => { $("#oDedupe").textContent = dedupeLabel(+e.target.value); saveSetting({ dedupe: +e.target.value }); });
+$("#sInterval").addEventListener("input", (e) => { setFill(e.target); $("#oInterval").textContent = `every ${e.target.value} s`; saveSetting({ interval: +e.target.value }); });
+$("#sDedupe").addEventListener("input", (e) => { setFill(e.target); $("#oDedupe").textContent = dedupeLabel(+e.target.value); saveSetting({ dedupe: +e.target.value }); });
 $("#sSpeed").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) api("/api/settings", { json: { speed: b.dataset.v } }).then(() => poll().then(renderSettings), fail); });
 async function applyQuality(q) {
   if (state.status.stats.frames > 0 && !confirm("Switching the model means all your videos are indexed again. Continue?")) return;
@@ -1089,7 +1158,7 @@ function renderPalette() {
   PAL.items.forEach((it, k) => {
     if (it.sec !== sec) { sec = it.sec; nodes.push(h("div", { class: "pal-sec" }, sec)); }
     nodes.push(h("button", { class: "pal-item" + (k === 0 ? " on" : ""), type: "button", role: "option", "data-k": k, onclick: () => runPal(k), onmousemove: () => palMark(k) },
-      it.thumb ? img(it.thumb) : icon(it.icon), h("span", {}, it.label), it.hint ? h("small", {}, it.hint) : null));
+      it.thumb ? img(it.thumb) : icon(it.icon), span(it.label), it.hint ? h("small", {}, it.hint) : null));
   });
   fill($("#palList"), nodes.length ? nodes : h("p", { class: "muted small", style: { padding: "12px" } }, "Nothing found"));
 }
@@ -1133,7 +1202,7 @@ document.addEventListener("keydown", (e) => {
     if (k === "[") { if (P.i > 0) seekMoment(P.i - 1); return; }
     if (k === "s") { toggleSave(); return; }
     if (k === "m") { v.muted = !v.muted; return; }
-    if (k === "f") { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else $(".stage-frame").requestFullscreen?.().catch(() => {}); return; }
+    if (k === "f") { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else $(".screen").requestFullscreen?.().catch(() => {}); return; }
   }
   if (e.key === "/") { e.preventDefault(); if (state.view !== "search") go("search"); setTimeout(() => { $("#q").focus(); $("#q").select(); }, 30); }
   else if (e.key === "?") $("#keys").hidden = false;
