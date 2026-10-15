@@ -21,7 +21,7 @@
 
 ## Download
 
-Get the latest Windows build from the [Releases page](https://github.com/galavixofficial/Video-Search-Engine/releases/latest), unzip it and run `Sceneseek.exe`. The first launch downloads the search model once (about 150 MB), then everything works offline.
+[Download the installer](https://github.com/galavixofficial/Video-Search-Engine/releases/latest/download/Sceneseek-Setup.exe) and run it. It adds Sceneseek to your Start menu. A portable zip is on the [Releases page](https://github.com/galavixofficial/Video-Search-Engine/releases/latest). The first launch downloads the search model once (about 150 MB), then everything works offline.
 
 Windows may show a SmartScreen notice because the app is new and not code-signed yet: choose **More info**, then **Run anyway**.
 

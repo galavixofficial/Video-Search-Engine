@@ -26,10 +26,21 @@ jobs:
           Compress-Archive -Path build_out/dist/Sceneseek -DestinationPath $name
           $hash = (Get-FileHash $name -Algorithm SHA256).Hash.ToLower()
           "$hash  $name" | Out-File -Encoding ascii "$name.sha256"
+      - name: Installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+          $ver = "${{ github.ref_name }}".TrimStart("v")
+          & $iscc "/DAppVersion=$ver" installer.iss
+          $hash = (Get-FileHash build_out/Sceneseek-Setup.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  Sceneseek-Setup.exe" | Out-File -Encoding ascii "build_out/Sceneseek-Setup.exe.sha256"
       - name: Publish
         uses: softprops/action-gh-release@v2
         with:
           files: |
+            build_out/Sceneseek-Setup.exe
+            build_out/Sceneseek-Setup.exe.sha256
             Sceneseek-*.zip
             Sceneseek-*.zip.sha256
           generate_release_notes: true
