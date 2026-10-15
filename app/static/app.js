@@ -325,7 +325,8 @@ function showSuggestions() {
 function markSuggestion(i) { SG.i = i; $$("#sugg button").forEach((b, k) => b.classList.toggle("on", k === i)); }
 function pickSuggestion(k) { const it = SG.items[k]; $("#sugg").hidden = true; if (it) it.run(); }
 
-$("#q").addEventListener("input", () => { $("#clearQ").hidden = !$("#q").value; showSuggestions(); instant(); });
+const syncForm = () => { const v = !!$("#q").value; $("#clearQ").hidden = !v; $("#searchForm").classList.toggle("has-text", v); };
+$("#q").addEventListener("input", () => { syncForm(); showSuggestions(); instant(); });
 $("#q").addEventListener("focus", () => { stopTypewriter(); showSuggestions(); });
 $("#q").addEventListener("blur", () => { setTimeout(() => ($("#sugg").hidden = true), 120); startTypewriter(); });
 $("#q").addEventListener("keydown", (e) => {
@@ -336,7 +337,7 @@ $("#q").addEventListener("keydown", (e) => {
 });
 $("#q").addEventListener("paste", (e) => { const f = [...(e.clipboardData?.files || [])].find((x) => x.type.startsWith("image/")); if (f) { e.preventDefault(); imageSearch(f); } });
 $("#searchForm").addEventListener("submit", (e) => { e.preventDefault(); $("#sugg").hidden = true; runSearch($("#q").value); });
-$("#clearQ").addEventListener("click", () => { $("#q").value = ""; $("#clearQ").hidden = true; $("#q").focus(); });
+$("#clearQ").addEventListener("click", () => { $("#q").value = ""; syncForm(); $("#q").focus(); });
 $("#imgBtn").addEventListener("click", () => $("#imgInput").click());
 $("#imgInput").addEventListener("change", (e) => { imageSearch(e.target.files[0]); e.target.value = ""; });
 const instant = debounce(() => {
@@ -345,6 +346,28 @@ const instant = debounce(() => {
 }, 340);
 $("#brand").addEventListener("click", (e) => { e.preventDefault(); clearSearch(); go("search"); });
 $$(".tabs a[data-tab=search]").forEach((a) => a.addEventListener("click", () => clearSearch()));
+
+/* voice search: the browser's speech recogniser turns speech into text, which is typed into the box */
+const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog = null;
+if (!Recog) $("#micBtn").hidden = true;
+$("#micBtn").addEventListener("click", () => {
+  if (recog) { recog.stop(); return; }
+  const r = recog = new Recog();
+  r.lang = navigator.language || "en-US"; r.interimResults = true; r.maxAlternatives = 1;
+  let heard = "", failed = false;
+  const btn = $("#micBtn");
+  r.onstart = () => { btn.classList.add("listening"); $("#q").placeholder = "Listening…"; };
+  r.onresult = (e) => { heard = [...e.results].map((x) => x[0].transcript).join(" ").trim(); $("#q").value = heard; syncForm(); };
+  r.onerror = (e) => {
+    failed = true;
+    toast(e.error === "not-allowed" || e.error === "service-not-allowed" ? "Microphone access is blocked. Allow it in your system or browser settings."
+      : e.error === "network" ? "Voice search needs an internet connection (the speech service is provided by your browser)."
+      : e.error === "no-speech" ? "Did not catch anything. Try again." : "Voice search is not available here.", "err");
+  };
+  r.onend = () => { recog = null; btn.classList.remove("listening"); $("#q").placeholder = "Describe a scene…"; if (heard && !failed) runSearch(heard); };
+  try { r.start(); } catch { recog = null; }
+});
 
 /* a typewriter that suggests things to look for */
 let twTimer = null, twIndex = 0;
@@ -369,7 +392,7 @@ function startTypewriter() {
 /* ═════════════════════════════ seek: home ═════════════════════════════ */
 function clearSearch() {
   state.results = null; state.searchSeq++; state.scroll = 0;
-  $("#q").value = ""; $("#clearQ").hidden = true;
+  $("#q").value = ""; syncForm();
   if (state.view === "search") { placeSearch(); renderSearchPage(); }
 }
 
@@ -430,7 +453,7 @@ function scopeParams(params) {
 function runSearch(q) {
   q = (q || "").trim();
   if (!q) return;
-  $("#q").value = q; $("#clearQ").hidden = false;
+  $("#q").value = q; syncForm();
   go("search");
   doSearch(q, true);
 }
@@ -490,7 +513,7 @@ async function similarTo(videoId, ts, name) {
   go("search");
   const seq = ++state.searchSeq;
   state.results = { results: [], pending: true, kind: "similar", label: "" };
-  $("#terms").hidden = true; $("#q").value = ""; $("#clearQ").hidden = true; showLoading();
+  $("#terms").hidden = true; $("#q").value = ""; syncForm(); showLoading();
   try {
     const data = await api(`/api/similar?video_id=${videoId}&ts_ms=${ts}&k=40`);
     if (seq !== state.searchSeq) return;

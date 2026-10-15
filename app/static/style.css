@@ -132,7 +132,7 @@ select option, select optgroup { background: var(--bg2); color: var(--ink); }
 .sform .sico { color: var(--faint); transition: color .3s; } .sform:focus-within .sico { color: var(--ink); }
 .sform input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; box-shadow: none !important; padding: 0 4px; font-size: .95rem; border-radius: 0; }
 .sform input::placeholder { color: var(--faint); }
-.sbtn { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: var(--faint); transition: background .2s, color .2s; flex: none; }
+.sbtn { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--mut); transition: background .2s, color .2s; flex: none; }
 .sbtn:hover { background: var(--bg3); color: var(--ink); }
 .seekbtn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: 999px; background: var(--solid); color: var(--solid-ink); font-weight: 600; font-size: .86rem; flex: none; transition: transform .2s var(--expo), filter .2s; }
 .seekbtn:hover { transform: translateX(2px); filter: brightness(.92); } .seekbtn .ic { width: 15px; height: 15px; }
@@ -144,7 +144,7 @@ select option, select optgroup { background: var(--bg2); color: var(--ink); }
 .hero-slot .sform input { font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2.1rem); letter-spacing: -.01em; }
 .hero-slot .sico { width: 24px; height: 24px; }
 .hero-slot .seekbtn { height: 54px; padding: 0 28px; font-size: 1rem; }
-.hero-slot .sbtn { width: 44px; height: 44px; }
+.hero-slot .sbtn { width: 48px; height: 48px; }
 .sugg { position: absolute; left: 0; right: 0; top: calc(100% + 12px); background: var(--bg1); border: 1px solid var(--line2); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); z-index: 80; animation: rv .35s var(--expo) both; text-align: left; min-width: 280px; }
 .sugg button { display: flex; align-items: center; gap: 14px; width: 100%; padding: 9px 12px; border-radius: 10px; text-align: left; font-weight: 500; }
 .sugg button.on, .sugg button:hover { background: color-mix(in srgb, var(--ink) 9%, transparent); }
@@ -448,3 +448,17 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20p
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; } .ribbon-row { animation: none; } }
 
 .pal-in input:focus, .pal-in input:focus-visible { outline: none; }
+
+/* bigger, always-visible search icons; the extras fold away while typing */
+.sform .sbtn .ic { width: 21px; height: 21px; } .hero-slot .sform .sbtn .ic { width: 26px; height: 26px; }
+.sform .sico { color: var(--mut); width: 20px; height: 20px; }
+.sform.has-text .sbtn, .sform.has-text .sico { color: var(--ink); }
+.sform #clearQ { color: var(--ink); }
+.sform #micBtn, .sform #imgBtn { max-width: 56px; overflow: hidden; transition: max-width .35s var(--expo), opacity .25s, margin .35s var(--expo), background .2s, color .2s; }
+.sform.has-text #micBtn, .sform.has-text #imgBtn { max-width: 0; opacity: 0; margin-left: -6px; pointer-events: none; }
+.seekbtn span { display: inline-block; max-width: 60px; overflow: hidden; white-space: nowrap; transition: max-width .35s var(--expo), opacity .25s; }
+.sform.has-text .seekbtn { padding: 0; width: 36px; justify-content: center; gap: 0; } .sform.has-text .seekbtn span { max-width: 0; opacity: 0; }
+.hero-slot .sform.has-text .seekbtn { width: 54px; }
+.sbtn.listening { color: #fff; background: #ff3b30; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(255, 59, 48, .18); } }
+.hero-slot .sform .sico { width: 28px; height: 28px; }
