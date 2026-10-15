@@ -303,12 +303,14 @@ const historyList = () => store.get("history", []);
 function remember(q) { if (q) store.set("history", [q, ...historyList().filter((x) => x !== q)].slice(0, 10)); }
 const SG = { items: [], i: -1 };
 
+/** True when a word in the text starts with what was typed (so "t" does not match every title with a t inside). */
+const startsWord = (text, lc) => text.toLowerCase().split(/[^a-z0-9]+/).some((w) => w.startsWith(lc));
 function buildSuggestions() {
   const val = $("#q").value.trim(), lc = val.toLowerCase(), items = [];
-  historyList().filter((x) => x.toLowerCase() !== lc && (!lc || x.toLowerCase().includes(lc))).slice(0, lc ? 4 : 6).forEach((t) => items.push({ icon: "clock", label: t, run: () => runSearch(t) }));
-  if (lc) {
-    (state.concepts || []).filter((c) => c.label.toLowerCase().includes(lc)).slice(0, 3).forEach((c) => items.push({ thumb: thumbUrl(c.cover.video_id, c.cover.ts_ms, 120), label: c.label, hint: "topic", run: () => runSearch(c.query) }));
-    state.videos.filter((v) => v.status === "ready" && v.name.toLowerCase().includes(lc)).slice(0, 3).forEach((v) => items.push({ thumb: thumbUrl(v.id, v.poster_ms, 120), label: v.name, hint: "video", run: () => openWatch(wholeCtx(v)) }));
+  historyList().filter((x) => x.toLowerCase() !== lc && (!lc || startsWord(x, lc))).slice(0, lc ? 4 : 6).forEach((t) => items.push({ icon: "clock", label: t, run: () => runSearch(t) }));
+  if (lc.length >= 2) {
+    (state.concepts || []).filter((c) => startsWord(c.label, lc)).slice(0, 3).forEach((c) => items.push({ thumb: thumbUrl(c.cover.video_id, c.cover.ts_ms, 120), label: c.label, hint: "topic", run: () => runSearch(c.query) }));
+    state.videos.filter((v) => v.status === "ready" && startsWord(v.name, lc)).slice(0, 3).forEach((v) => items.push({ thumb: thumbUrl(v.id, v.poster_ms, 120), label: v.name, hint: "video", run: () => openWatch(wholeCtx(v)) }));
   }
   return items;
 }
